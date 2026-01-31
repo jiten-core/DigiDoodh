@@ -1,0 +1,8 @@
+.next
+node_modules
+.git
+build_output
+dist
+out
+.gemini
+tmp

@@ -1,0 +1,327 @@
+🎨 DIGIDHOODH — UI/UX DESIGN STRATEGY
+
+Based on PRD & Human-First Reference Guide
+1. Design Philosophy
+
+"Zero-Learning Curve" The goal is to ensure a 50-year-old dairy owner with low-tech literacy can operate the app immediately.
+
+    Trust First: Money accuracy is prioritized over fancy features.
+
+    Offline Confidence: The UI must clearly show when data is saved locally vs. synced.
+
+    High Contrast & Clarity: Large buttons and readable fonts are non-negotiable.
+
+2. Reference Mapping: Feature to Inspiration
+
+We will map your functional modules from the PRD to the specific UX references you provided.
+PRD Module	Primary Reference	UX Pattern to Adopt
+
+Farmer Ledger
+	Khatabook	
+
+• Red/Green (gave/got) color coding.
+
+• Large total balance at the top.
+
+• Chronological list of transactions (Milk/Cash).
+
+Milk Collection Entry
+	iOS Calculator / PhonePe	
+
+• Big numeric keypad.
+
+• Instant confirmation ticks upon entry.
+
+• "One-tap" flow to switch Morning/Evening.
+
+Dashboard
+	BharatPe	
+
+• Minimal cards.
+
+• "Today's Collection" prominent at top.
+
+• Status banners for "Offline" or "Syncing".
+
+Bill Generation
+	Zoho Books (Mobile)	
+
+• Clear distinction between "Draft" and "Final".
+
+• Simple preview before sharing via WhatsApp.
+
+Inventory (Premium+)
+	Udaan	
+
+• Simple product list with images.
+
+• Request → Approval flow: Farmer requests, Owner approves/edits.
+Confirmation/Success	Google Pay	
+
+• Full-screen success animations (Green tick).
+
+• Audio feedback (optional) for successful entry.
+3. Visual Identity System
+🎨 Color Palette
+
+    Primary Brand: Dairy Blue/White (Inspired by Amul/MilkBasket). reliable, calm.
+
+    Action Colors:
+
+        Green: Money In / Milk Collected / Success.
+
+        Red: Money Out / Loan Given / Error / Delete.
+
+        Grey: Pending / Draft / Offline State.
+
+    Backgrounds: High contrast whites and light greys. No dark mode complexity for MVP.
+
+🔤 Typography
+
+    Font Family: Inter or Poppins (Rounded, friendly, highly legible).
+
+    Sizing:
+
+        Headings: 24px+ (Bold).
+
+        Body Text: 16px minimum (No small print).
+
+        Numbers: Monospace or Tabular figures for financial accuracy in ledgers.
+
+🗣️ Multi-Language UI
+
+    The UI must support dynamic text resizing, as script length varies significantly between English, Tamil, and Hindi.
+
+    Iconography: Use universal icons alongside text labels to support users with lower literacy.
+
+4. Component Guidelines (The "Steal" List)
+
+✅ Buttons & Actions
+
+    Height: Minimum 48px touch target (Material 3 standard).
+
+    State: Disabled buttons must be clearly greyed out (e.g., if fields are missing in Milk Entry).
+
+    Location: Primary actions (Save, Add Milk) always at the bottom of the screen (Thumb zone).
+
+📶 Offline Indicators
+
+    Top Bar: A subtle "You are offline" strip that does not block the screen.
+
+    List Items: A small clock icon next to unsynced entries, turning into a double-tick (WhatsApp style) when synced.
+
+⚠️ Error Handling (PhonePe Style)
+
+    No cryptic error codes.
+
+    Example: Instead of "Error 404", say "Internet not available. Entry saved on phone."
+
+    Input Validation: Prevent invalid FAT/SNF entry immediately (e.g., alert if FAT > 10 for Cow milk).
+
+5. Anti-Patterns (What We Will Avoid)
+
+    ❌ Dense Data Tables: No Excel-style grids on mobile. Use Cards instead.
+
+    ❌ Complex Graphs: Avoid TradingView/Zerodha style charts. Use simple bar charts for "Milk this month".
+
+    ❌ Hidden Menus: Avoid complex hamburger menus. Use a simple Bottom Navigation Bar.
+
+6. Layout Structure (Navigation)
+
+Bottom Navigation Bar (Owner Role):
+
+    Home: Dashboard, Quick Milk Entry button.
+
+    Collection: List of daily milk entries.
+
+    Ledger: Farmer list with balances.
+
+    More: Settings, Rate Charts, Staff Management.
+
+(Note: Inventory appears as a distinct section if the user is on Premium+). 📐 DIGIDHOODH — TECHNICAL DESIGN DOCUMENT (TDD)
+
+Status: DRAFT (Build-Ready) Version: 1.0
+1. System Architecture (High Level)
+
+The system follows an Offline-First architecture using a PWA (Progressive Web App) model. The truth lives on the server (Supabase), but the user interacts primarily with a local database (IndexedDB) to ensure speed and offline capability.
+
+    Client: React + TypeScript PWA (Web/Android/Desktop).
+
+    Local DB: IndexedDB (via wrapper like Dexie.js or RxDB).
+
+    Cloud Backend: Supabase (PostgreSQL).
+
+    Sync Engine: Background service worker that pushes local changes to Supabase when internet is available.
+
+2. Database Schema Design (PostgreSQL/Supabase)
+
+This schema supports the strict role-based access and pricing tiers defined in the PRD.
+2.1 Core Entities
+
+    profiles (Users):
+
+        id (UUID), mobile_number, role (owner/staff/farmer).
+
+        language_preference (default: English).
+
+    dairies (Tenants):
+
+        id, owner_id, dairy_name, subscription_plan (BASIC/PREMIUM/PREMIUM+).
+
+        subscription_expiry.
+
+    farmers:
+
+        id, dairy_id, name, mobile, farmer_code (unique per dairy).
+
+        is_active (boolean).
+
+2.2 Milk & Rates Module
+
+    rate_charts:
+
+        id, dairy_id, type (Cow/Buffalo/Mix).
+
+        calculation_method (FAT_ONLY, FAT_SNF).
+
+        effective_date.
+
+        rates_json (JSONB stores the grid: e.g., { "3.5": { "8.5": 32.50 } }).
+
+    milk_collections:
+
+        id, dairy_id, farmer_id, recorded_by (Staff/Owner ID).
+
+        shift (Morning/Evening).
+
+        fat, snf, liters, rate_applied, total_amount.
+
+        sync_status (synced/pending).
+
+2.3 Financial & Ledger Module
+
+    ledger_transactions (The Source of Truth):
+
+        id, farmer_id, amount (+ for milk, - for advance/sales).
+
+        transaction_type (MILK_PAYMENT, LOAN_GIVEN, PRODUCT_SALE).
+
+        reference_id (Links to milk_collection id or product_order id).
+
+        created_at (Immutable timestamp).
+
+2.4 Inventory Module (Premium+ Only)
+
+    products:
+
+        id, dairy_id, name (Feed, Medicine), stock_quantity, unit_price.
+
+    product_requests:
+
+        id, farmer_id, product_id, requested_qty, status (PENDING, APPROVED, REJECTED).
+
+3. UI/UX Design Specifications
+
+Philosophy: "Zero-Learning Curve" (Referencing Khatabook/PhonePe).
+3.1 Color System (Accessibility Focused)
+
+    Primary Brand: Dairy Blue (#0056D2) – Trust & Cleanliness.
+
+    Income/Positive: WhatsApp Green (#25D366) – Used for "Milk Collected" & "Payment Received".
+
+    Expense/Negative: Error Red (#D32F2F) – Used for "Loan Given" & "Delete Entry".
+
+    Text: High contrast Black (#111111) on White. No thin fonts.
+
+3.2 Key Screens & Interactions
+A. Milk Collection Screen (The "Calculator" Feel)
+
+    Layout: Split screen. Top 30% shows Farmer Name & Last Rate. Bottom 70% is a large numeric keypad.
+
+    Input Flow: Enter Code → Enter Liters → Enter FAT → Auto-Calculate Rate → Big "SAVE" Button.
+
+    Feedback: Loud "Success Tick" animation (Google Pay style) upon save.
+
+    Offline State: If offline, show a grey "Saved to Phone" toast instead of green "Synced".
+
+B. The Ledger (Khatabook Style)
+
+    Header: "Total Payable" in big bold text.
+
+    List: Chronological list of milk entries.
+
+    Visuals: Milk entries in Green (+₹), Advances/Loans in Red (-₹).
+
+    PDF Button: Floating Action Button (FAB) to "Download Bill".
+
+C. Product Request (Premium+)
+
+    Farmer View: Simple card list of Feed/Medicine. "Request" button opens a popup asking "How many bags?". No payment gateway.
+
+    Owner View: A notification badge on the "Inventory" tab. Owner clicks "Approve" → Stock deducts → Ledger updates automatically.
+
+4. API & Data Flow Strategy
+4.1 Offline Synchronization Logic
+
+Since the app must work on low-end devices with spotty internet:
+
+    Write: User clicks Save. Data is written to IndexedDB immediately. UI updates instantly (Optimistic UI).
+
+    Queue: The mutation (create/update/delete) is added to a sync_queue in local storage.
+
+    Sync: A background worker detects Internet. It sends the queue to Supabase Edge Functions.
+
+    Resolve:
+
+        Success: Mark local data as "synced".
+
+        Conflict: If server data is newer (rare in this single-owner model), server wins.
+
+4.2 Security (Row Level Security - RLS)
+
+We will use Supabase RLS to enforce the strict roles defined in the PRD.
+
+    Policy 1 (Owner): SELECT * FROM milk_collections WHERE dairy_id = auth.uid()
+
+    Policy 2 (Farmer): SELECT * FROM milk_collections WHERE farmer_id = auth.uid().
+
+    Policy 3 (Staff): Can INSERT but cannot UPDATE or DELETE older records without specific permission.
+
+5. Implementation Roadmap (Phased)
+Phase 1: The Core (Basic Plan)
+
+    Authentication (OTP).
+
+    Milk Collection (Offline + Sync).
+
+    Rate Chart Engine (FAT only).
+
+    Farmer Ledger (View Only).
+
+Phase 2: Billing & Staff (Premium Plan)
+
+    PDF Bill Generator (Client-side generation using react-pdf).
+
+    WhatsApp Integration (Click-to-chat with pre-filled bill text).
+
+    Staff Roles & Permissions.
+
+Phase 3: Growth Features (Premium+)
+
+    Inventory Management.
+
+    Product Request System.
+
+    Advanced Analytics/Exports.
+
+6. Definition of Done Checklist
+
+Before any release, these conditions must be met:
+
+    Accuracy: Rate calculation matches the Excel chart 100%.
+
+    Speed: Milk entry screen loads in < 1 second on a 2GB RAM phone.
+
+    Offline: Turning off WiFi/Data does not crash the app or prevent saving.
+
+    Language: UI successfully renders in Hindi/Gujarati without breaking layout.
