@@ -27,20 +27,32 @@
       "@/*": [
         "./src/*"
       ],
+      "@/brain/*": [
+        "./src/brain/*"
+      ],
+      "@/beauty/*": [
+        "./src/beauty/*"
+      ],
+      "@/shared/*": [
+        "./src/shared/*"
+      ],
       "@/components/*": [
-        "./src/components/*"
+        "./src/beauty/web/components/*"
+      ],
+      "@/lib/supabase": [
+        "./src/shared/db.ts"
       ],
       "@/lib/*": [
         "./src/lib/*"
       ],
       "@/hooks/*": [
-        "./src/hooks/*"
+        "./src/beauty/web/hooks/*"
       ],
       "@/store/*": [
         "./src/store/*"
       ],
       "@/types/*": [
-        "./src/types/*"
+        "./src/shared/*"
       ],
       "@/utils/*": [
         "./src/utils/*"

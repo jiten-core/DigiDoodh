@@ -1,3 +1,0 @@
-[32mForwarding HTTP traffic from https://ee1023fed182c216-152-58-60-180.serveousercontent.com
-[0mConnection to serveo.net closed by remote host.
-Connection to serveo.net closed.

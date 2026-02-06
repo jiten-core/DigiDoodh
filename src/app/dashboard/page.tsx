@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useTranslation } from 'react-i18next'
+import { useFinance } from '@/hooks/useFinance'
+import { useCollection } from '@/hooks/useCollection'
 import {
     Milk,
     Users,
@@ -20,8 +22,11 @@ import {
     Calendar,
     Sun,
     Sunset,
-    ArrowRight
+    ArrowRight,
+    ShoppingCart
 } from 'lucide-react'
+import { format } from 'date-fns'
+import { supabase, isDemoMode } from '@/lib/supabase'
 
 // Dashboard stats type
 interface DashboardStats {
@@ -37,10 +42,15 @@ interface DashboardStats {
 export default function DashboardPage() {
     const { profile } = useAuth()
     const { t, i18n } = useTranslation()
-    const [stats, setStats] = useState<DashboardStats | null>(null)
-    const [loading, setLoading] = useState(true)
-
     const isHindi = i18n.language === 'hi'
+
+    // New Modular Hooks (Beauty layer calling Brain)
+    const { stats: financeStats, totalPending, fetchDailyStats, fetchTotalPending, loading: financeLoading } = useFinance(profile?.dairy?.id);
+    const { entries: milkEntries, farmers, fetchEntries, fetchFarmers, loading: collectionLoading } = useCollection(profile?.dairy?.id);
+
+    const [loading, setLoading] = useState(true)
+    const [stats, setStats] = useState<DashboardStats | null>(null)
+
     const currentHour = new Date().getHours()
     const greeting = currentHour < 12
         ? (isHindi ? 'सुप्रभात' : 'Good Morning')
@@ -49,28 +59,44 @@ export default function DashboardPage() {
             : (isHindi ? 'शुभ संध्या' : 'Good Evening')
 
     useEffect(() => {
-        fetchDashboardStats()
-    }, [])
-
-    const fetchDashboardStats = async () => {
-        try {
-            // Simulated data - replace with actual API call
-            await new Promise(resolve => setTimeout(resolve, 500))
-            setStats({
-                todayCollection: { liters: 1250, amount: 52500, change: 12.5 },
-                totalFarmers: { count: 150, active: 142 },
-                totalBuyers: { count: 28, active: 25 },
-                pendingPayments: { amount: 125000, count: 18 },
-                monthlyRevenue: { amount: 1850000, change: 8.3 },
-                morningMilk: 780,
-                eveningMilk: 470
-            })
-        } catch (error) {
-            console.error('Error fetching stats:', error)
-        } finally {
-            setLoading(false)
+        const today = new Date().toISOString().split('T')[0];
+        if (profile?.dairy?.id) {
+            setLoading(true);
+            Promise.all([
+                fetchDailyStats(today),
+                fetchTotalPending(),
+                fetchFarmers(),
+                fetchEntries(today)
+            ]).finally(() => setLoading(false));
         }
-    }
+    }, [profile?.dairy?.id, fetchDailyStats, fetchTotalPending, fetchFarmers, fetchEntries]);
+
+    useEffect(() => {
+        if (!financeStats && !milkEntries.length) return;
+
+        const morningMilk = milkEntries.filter(e => e.session === 'morning').reduce((sum, e) => sum + (e.liters || 0), 0);
+        const eveningMilk = milkEntries.filter(e => e.session === 'evening').reduce((sum, e) => sum + (e.liters || 0), 0);
+
+        setStats({
+            todayCollection: {
+                liters: financeStats?.total_liters || 0,
+                amount: financeStats?.total_amount || 0,
+                change: 0
+            },
+            totalFarmers: {
+                count: farmers.length,
+                active: farmers.filter(f => f.active).length
+            },
+            totalBuyers: { count: 0, active: 0 },
+            pendingPayments: {
+                amount: totalPending,
+                count: 0 // We can calculate this if needed
+            },
+            monthlyRevenue: { amount: 0, change: 0 },
+            morningMilk,
+            eveningMilk
+        });
+    }, [financeStats, milkEntries, totalPending, farmers]);
 
     const quickActions = [
         {
@@ -103,7 +129,11 @@ export default function DashboardPage() {
         }
     ]
 
-    if (loading) {
+
+    const isOwner = profile?.role === 'owner' || profile?.role === 'staff' || profile?.permissions?.includes('admin');
+    const isFarmer = profile?.role === 'farmer';
+
+    if (loading || financeLoading || collectionLoading) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
                 <div className="text-center">
@@ -116,6 +146,104 @@ export default function DashboardPage() {
         )
     }
 
+    // --- FARMER VIEW ---
+    if (isFarmer) {
+        return (
+            <div className="space-y-6">
+                {/* Farmer Welcome */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="bg-gradient-to-br from-earth-600 to-earth-800 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden"
+                >
+                    <div className="absolute top-0 right-0 p-8 opacity-10">
+                        <Milk className="w-32 h-32" />
+                    </div>
+                    <div className="relative z-10">
+                        <h1 className="text-2xl md:text-4xl font-display font-bold mb-2">
+                            {greeting}, {profile?.name}! 👋
+                        </h1>
+                        <p className="text-earth-100 text-lg">
+                            {isHindi ? 'आपका आज का कुल दूध और बैलेंस' : 'Your milk record and balance for today'}
+                        </p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
+                                <p className="text-earth-100 text-sm mb-1 uppercase tracking-wider font-bold">{isHindi ? 'आपका बैलेंस' : 'Your Balance'}</p>
+                                <p className="text-4xl font-bold">₹{(stats?.pendingPayments.amount || 0).toLocaleString()}</p>
+                                <p className="text-earth-200 text-xs mt-2 italic">{isHindi ? '* पिछले 10 दिनों का हिसाब' : '* Last 10 days ledger'}</p>
+                            </div>
+                            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
+                                <p className="text-earth-100 text-sm mb-1 uppercase tracking-wider font-bold">{isHindi ? 'आज का दूध' : 'Today\'s Milk'}</p>
+                                <p className="text-4xl font-bold">{stats?.todayCollection.liters || 0} <span className="text-xl font-normal">Liters</span></p>
+                                <p className="text-earth-200 text-xs mt-2">{isHindi ? `सुबह: ${stats?.morningMilk || 0}L | शाम: ${stats?.eveningMilk || 0}L` : `Morning: ${stats?.morningMilk || 0}L | Evening: ${stats?.eveningMilk || 0}L`}</p>
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Farmer Actions */}
+                <div className="grid grid-cols-2 gap-4">
+                    <Link href="/dashboard/milk">
+                        <Card className="hover:border-dairy-500 transition-all cursor-pointer h-full border-2 border-transparent">
+                            <CardContent className="p-6 flex flex-col items-center text-center">
+                                <div className="w-16 h-16 bg-dairy-100 rounded-2xl flex items-center justify-center mb-4">
+                                    <FileText className="w-8 h-8 text-dairy-600" />
+                                </div>
+                                <h3 className="font-bold text-lg">{isHindi ? 'हिसाब देखें' : 'View Ledger'}</h3>
+                                <p className="text-sm text-muted-foreground">{isHindi ? 'अपनी पूरी कमाई देखें' : 'Check your total earnings'}</p>
+                            </CardContent>
+                        </Card>
+                    </Link>
+                    <Link href="/dashboard/products">
+                        <Card className="hover:border-saffron-500 transition-all cursor-pointer h-full border-2 border-transparent">
+                            <CardContent className="p-6 flex flex-col items-center text-center">
+                                <div className="w-16 h-16 bg-saffron-100 rounded-2xl flex items-center justify-center mb-4">
+                                    <ShoppingCart className="w-8 h-8 text-saffron-600" />
+                                </div>
+                                <h3 className="font-bold text-lg">{isHindi ? 'सामान मंगाएं' : 'Order Goods'}</h3>
+                                <p className="text-sm text-muted-foreground">{isHindi ? 'पशु आहार या घी मंगाएं' : 'Order feed or ghee'}</p>
+                            </CardContent>
+                        </Card>
+                    </Link>
+                </div>
+
+                {/* Recent Collections for Farmer */}
+                <Card className="card-premium">
+                    <CardHeader>
+                        <CardTitle className="text-xl">{isHindi ? 'हाल का दूध रिकॉर्ड' : 'Recent Milk History'}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {[
+                                { date: '21 Jan', shift: 'Evening', qty: 6.5, fat: 4.2, rate: 45, total: 292.5 },
+                                { date: '21 Jan', shift: 'Morning', qty: 6.0, fat: 4.0, rate: 43, total: 258 },
+                                { date: '20 Jan', shift: 'Evening', qty: 7.2, fat: 4.5, rate: 48, total: 345.6 },
+                            ].map((item, idx) => (
+                                <div key={idx} className="flex justify-between items-center p-4 rounded-xl bg-muted/50">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center font-bold text-earth-700">
+                                            {item.shift.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <p className="font-bold">{item.date} - {item.shift}</p>
+                                            <p className="text-xs text-muted-foreground">FAT: {item.fat}% | Rate: ₹{item.rate}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-bold text-lg">{item.qty}L</p>
+                                        <p className="text-dairy-600 font-bold">₹{item.total}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        )
+    }
+
+    // --- OWNER VIEW (Original with role-checking) ---
     return (
         <div className="space-y-6">
             {/* Welcome Banner */}
@@ -233,7 +361,7 @@ export default function DashboardPage() {
                     </Card>
                 </motion.div>
 
-                {/* Total Buyers */}
+                {/* Total Buyers - ONLY FOR OWNERS */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -354,23 +482,18 @@ export default function DashboardPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {/* Sample recent entries */}
-                            {[
-                                { name: 'रमेश पटेल', time: '08:45 AM', liters: 12.5, amount: 550 },
-                                { name: 'सुनीता देवी', time: '07:30 AM', liters: 8.2, amount: 361 },
-                                { name: 'अर्जुन सिंह', time: '07:15 AM', liters: 15.0, amount: 660 },
-                            ].map((entry, index) => (
+                            {milkEntries.slice(0, 5).map((entry: any, index: number) => (
                                 <div
-                                    key={index}
+                                    key={entry.id || index}
                                     className="flex items-center justify-between p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors stagger-item"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="farmer-avatar text-sm">
-                                            {entry.name.charAt(0)}
+                                            {entry.farmer?.name?.charAt(0) || 'F'}
                                         </div>
                                         <div>
-                                            <p className="font-medium text-foreground">{entry.name}</p>
-                                            <p className="text-sm text-muted-foreground">{entry.time}</p>
+                                            <p className="font-medium text-foreground">{entry.farmer?.name || 'Unknown'}</p>
+                                            <p className="text-sm text-muted-foreground">{entry.session} • {format(new Date(entry.entry_date), 'HH:mm')}</p>
                                         </div>
                                     </div>
                                     <div className="text-right">
@@ -379,10 +502,16 @@ export default function DashboardPage() {
                                     </div>
                                 </div>
                             ))}
+                            {milkEntries.length === 0 && (
+                                <p className="text-center py-10 text-muted-foreground">
+                                    {isHindi ? 'आज कोई entry नहीं' : 'No entries yet today'}
+                                </p>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
             </motion.div>
         </div>
     )
+
 }

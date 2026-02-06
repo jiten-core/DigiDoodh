@@ -8,8 +8,13 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
+import { supabase, isDemoMode } from '@/lib/supabase';
+import { FeatureGate } from '@/components/subscription/FeatureGate';
 import {
     Calculator,
     Plus,
@@ -52,7 +57,8 @@ interface RateEntry {
 }
 
 export default function RateChartsPage() {
-    const { t } = useTranslation();
+    const { profile } = useAuth();
+    const { checkLimit, currentPlan } = usePlanLimits();
     const [loading, setLoading] = useState(true);
     const [rateCharts, setRateCharts] = useState<RateChart[]>([]);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -83,13 +89,38 @@ export default function RateChartsPage() {
     }, []);
 
     const fetchRateCharts = async () => {
+        if (!profile?.dairy?.id && !isDemoMode) return;
+        setLoading(true);
         try {
-            const response = await fetch('/api/rate-charts');
-            if (response.ok) {
-                const data = await response.json();
-                setRateCharts(data.rateCharts || getDemoRateCharts());
-            } else {
+            if (isDemoMode) {
                 setRateCharts(getDemoRateCharts());
+                return;
+            }
+
+            const { data, error } = await supabase
+                .from('rate_charts')
+                .select('*')
+                .eq('dairy_id', profile?.dairy?.id)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            if (data) {
+                setRateCharts(data.map((item: any) => ({
+                    id: item.id,
+                    name: item.name,
+                    type: item.type,
+                    isDefault: item.is_default,
+                    isActive: item.is_active,
+                    baseRate: item.base_rate,
+                    fatIncentive: item.fat_incentive,
+                    snfIncentive: item.snf_incentive,
+                    minFat: item.min_fat,
+                    maxFat: item.max_fat,
+                    minSnf: item.min_snf,
+                    maxSnf: item.max_snf,
+                    createdAt: item.created_at,
+                })));
             }
         } catch (error) {
             console.error('Error fetching rate charts:', error);
@@ -173,17 +204,37 @@ export default function RateChartsPage() {
             return;
         }
 
+        // Limit check for non-premium plans (e.g. max 1 chart for BASIC)
+        if (!editingChart && rateCharts.length >= 1 && currentPlan.id === 'BASIC') {
+            toast.error('BASIC plan supports only 1 rate chart. Please upgrade for more.');
+            return;
+        }
+
         try {
+            if (isDemoMode) {
+                toast.success(editingChart ? 'Rate chart updated (Demo)!' : 'Rate chart created (Demo)!');
+                setShowAddModal(false);
+                return;
+            }
+
             const payload = {
-                ...formData,
-                baseRate: parseFloat(formData.baseRate),
-                fatIncentive: parseFloat(formData.fatIncentive),
-                snfIncentive: parseFloat(formData.snfIncentive),
-                minFat: parseFloat(formData.minFat),
-                maxFat: parseFloat(formData.maxFat),
-                minSnf: parseFloat(formData.minSnf),
-                maxSnf: parseFloat(formData.maxSnf),
+                dairy_id: profile?.dairy?.id,
+                name: formData.name,
+                type: formData.type,
+                base_rate: parseFloat(formData.baseRate),
+                fat_incentive: parseFloat(formData.fatIncentive),
+                snf_incentive: parseFloat(formData.snfIncentive),
+                min_fat: parseFloat(formData.minFat),
+                max_fat: parseFloat(formData.maxFat),
+                min_snf: parseFloat(formData.minSnf),
+                max_snf: parseFloat(formData.maxSnf),
             };
+
+            const { error } = editingChart
+                ? await supabase.from('rate_charts').update(payload).eq('id', editingChart.id)
+                : await supabase.from('rate_charts').insert([payload]);
+
+            if (error) throw error;
 
             toast.success(editingChart ? 'Rate chart updated!' : 'Rate chart created!');
             setShowAddModal(false);

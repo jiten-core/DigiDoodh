@@ -19,6 +19,8 @@ import {
     Save, Moon, Sun, Star, Smartphone, Check
 } from 'lucide-react'
 import { SUPPORTED_LANGUAGES } from '@/i18n'
+import { DatabaseHealthCheck } from '@/components/diagnostics/DatabaseHealthCheck'
+import PlanSelection from '@/components/subscription/PlanSelection'
 
 export default function SettingsPage() {
     const { profile } = useAuth()
@@ -85,7 +87,9 @@ export default function SettingsPage() {
                         { id: 'profile', icon: User, label: isHindi ? 'प्रोफाइल' : 'Profile' },
                         { id: 'dairy', icon: Building2, label: isHindi ? 'डेयरी' : 'Dairy' },
                         { id: 'app', icon: Smartphone, label: isHindi ? 'ऐप सेटिंग' : 'App Settings' },
+                        { id: 'subscription', icon: Star, label: isHindi ? 'सबस्क्रिप्शन' : 'Subscription' },
                         { id: 'language', icon: Globe, label: isHindi ? 'भाषा' : 'Language' },
+                        { id: 'system', icon: Shield, label: isHindi ? 'सिस्टम' : 'System' },
                     ].map(tab => (
                         <TabsTrigger
                             key={tab.id}
@@ -173,6 +177,23 @@ export default function SettingsPage() {
                     </Card>
                 </TabsContent>
 
+                {/* Subscription Tab */}
+                <TabsContent value="subscription" className="space-y-4">
+                    <Card className="card-premium">
+                        <CardHeader>
+                            <CardTitle className="font-display text-xl">{isHindi ? 'प्लान चुनें' : 'Choose Your Plan'}</CardTitle>
+                            <CardDescription>
+                                {isHindi
+                                    ? 'अपने डेयरी के लिए सही प्लान चुनें और फीचर्स अनलॉक करें।'
+                                    : 'Select the perfect plan for your dairy and unlock premium features.'}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <PlanSelection />
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
                 {/* Language Tab */}
                 <TabsContent value="language" className="space-y-4">
                     <Card className="card-premium">
@@ -199,6 +220,30 @@ export default function SettingsPage() {
                                     </div>
                                 ))}
                             </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+                {/* System Tab */}
+                <TabsContent value="system" className="space-y-4">
+                    <DatabaseHealthCheck />
+                    <Card className="card-premium">
+                        <CardHeader>
+                            <CardTitle className="font-display text-xl">{isHindi ? 'डेटाबेस मैनेजमेंट' : 'Database Management'}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <p className="text-sm text-muted-foreground">
+                                {isHindi
+                                    ? 'सुनिश्चित करें कि आपने अपने सुपबेस डैशबोर्ड में SQL स्कीमा रन किया है।'
+                                    : 'Ensure you have run the SQL schema in your Supabase dashboard to create all necessary tables.'}
+                            </p>
+                            <Button
+                                variant="outline"
+                                className="w-full h-12 rounded-xl"
+                                onClick={() => window.open('https://supabase.com/dashboard', '_blank')}
+                            >
+                                <Globe className="w-4 h-4 mr-2" />
+                                Supabase Dashboard
+                            </Button>
                         </CardContent>
                     </Card>
                 </TabsContent>
