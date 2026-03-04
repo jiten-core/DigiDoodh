@@ -341,6 +341,7 @@ export default function ReportsAnalytics() {
                     {/* Overview Tab */}
                     <TabsContent value="overview" className="mt-6">
                         <motion.div
+                            key="overview-content"
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
@@ -405,7 +406,7 @@ export default function ReportsAnalytics() {
                                     <div className="space-y-4">
                                         {reportData?.farmers.topContributors.map((farmer, index) => (
                                             <motion.div
-                                                key={farmer.name}
+                                                key={`farmer-${index}-${farmer.name || 'unknown'}`}
                                                 initial={{ opacity: 0, x: -20 }}
                                                 animate={{ opacity: 1, x: 0 }}
                                                 transition={{ delay: index * 0.1 }}
@@ -477,7 +478,7 @@ export default function ReportsAnalytics() {
                                     <div className="space-y-4">
                                         {reportData?.buyers.topBuyers.map((buyer, index) => (
                                             <motion.div
-                                                key={buyer.name}
+                                                key={`buyer-${index}-${buyer.name || 'unknown'}`}
                                                 initial={{ opacity: 0, x: -20 }}
                                                 animate={{ opacity: 1, x: 0 }}
                                                 transition={{ delay: index * 0.1 }}
@@ -503,6 +504,7 @@ export default function ReportsAnalytics() {
                     {/* Collection Tab */}
                     <TabsContent value="collection" className="mt-6">
                         <motion.div
+                            key="collection-content"
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                         >
@@ -535,6 +537,7 @@ export default function ReportsAnalytics() {
                     {/* Financial Tab */}
                     <TabsContent value="financial" className="mt-6">
                         <motion.div
+                            key="financial-content"
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             className="space-y-6"
@@ -571,6 +574,7 @@ export default function ReportsAnalytics() {
                     {/* Trends Tab */}
                     <TabsContent value="trends" className="mt-6">
                         <motion.div
+                            key="trends-content"
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                         >

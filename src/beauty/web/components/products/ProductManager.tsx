@@ -48,6 +48,8 @@ interface Product {
     maxStock?: number;
     isActive: boolean;
     currentStock: number;
+    brand?: string; // NEW: Product brand like "Amul", "Mother Dairy"
+    productGroup?: string; // NEW: Product group for categorization
     createdAt: string;
     updatedAt: string;
 }
@@ -62,6 +64,33 @@ type ProductCategory =
     | 'MEDICINE'
     | 'EQUIPMENT'
     | 'OTHER';
+
+// Common product brands in India
+const BRAND_OPTIONS = [
+    { value: '', label: 'No Brand' },
+    { value: 'amul', label: 'Amul' },
+    { value: 'mother_dairy', label: 'Mother Dairy' },
+    { value: 'nestle', label: 'Nestlé' },
+    { value: 'verka', label: 'Verka' },
+    { value: 'parag', label: 'Parag' },
+    { value: 'heritage', label: 'Heritage' },
+    { value: 'nandini', label: 'Nandini' },
+    { value: 'aavin', label: 'Aavin' },
+    { value: 'local', label: 'Local/Own Brand' },
+    { value: 'other', label: 'Other' },
+];
+
+// Product groups for better organization
+const GROUP_OPTIONS = [
+    { value: '', label: 'No Group' },
+    { value: 'dairy_products', label: 'Dairy Products' },
+    { value: 'cattle_nutrition', label: 'Cattle Nutrition' },
+    { value: 'veterinary', label: 'Veterinary Supplies' },
+    { value: 'farm_equipment', label: 'Farm Equipment' },
+    { value: 'packaging', label: 'Packaging Materials' },
+    { value: 'cleaning', label: 'Cleaning Supplies' },
+    { value: 'consumables', label: 'Consumables' },
+];
 
 interface InventoryTransaction {
     id: string;
@@ -132,6 +161,8 @@ export default function ProductManager() {
         price: '',
         minStock: '',
         maxStock: '',
+        brand: '',
+        productGroup: '',
     });
 
     // Stock adjustment form
@@ -206,6 +237,8 @@ export default function ProductManager() {
             maxStock: 500,
             isActive: true,
             currentStock: 150,
+            brand: 'local',
+            productGroup: 'dairy_products',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         },
@@ -220,6 +253,8 @@ export default function ProductManager() {
             maxStock: 100,
             isActive: true,
             currentStock: 25,
+            brand: 'amul',
+            productGroup: 'dairy_products',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         },
@@ -234,6 +269,7 @@ export default function ProductManager() {
             maxStock: 200,
             isActive: true,
             currentStock: 8, // Low stock
+            productGroup: 'cattle_nutrition',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         },
@@ -248,13 +284,14 @@ export default function ProductManager() {
             maxStock: 50,
             isActive: true,
             currentStock: 12,
+            productGroup: 'veterinary',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         },
         {
             id: '5',
-            name: 'Fresh Butter',
-            description: 'Homemade fresh butter',
+            name: 'Amul Fresh Butter',
+            description: 'Premium butter from Amul',
             category: 'BUTTER',
             unit: 'kg',
             price: 500,
@@ -262,6 +299,8 @@ export default function ProductManager() {
             maxStock: 30,
             isActive: true,
             currentStock: 15,
+            brand: 'amul',
+            productGroup: 'dairy_products',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         },
@@ -451,6 +490,8 @@ export default function ProductManager() {
             price: '',
             minStock: '',
             maxStock: '',
+            brand: '',
+            productGroup: '',
         });
         setEditingProduct(null);
     };
@@ -464,6 +505,8 @@ export default function ProductManager() {
             price: product.price.toString(),
             minStock: product.minStock?.toString() || '',
             maxStock: product.maxStock?.toString() || '',
+            brand: product.brand || '',
+            productGroup: product.productGroup || '',
         });
         setEditingProduct(product);
         setShowAddModal(true);
@@ -675,11 +718,26 @@ export default function ProductManager() {
                         <select
                             value={categoryFilter}
                             onChange={(e) => setCategoryFilter(e.target.value)}
-                            className="h-12 px-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white min-w-[200px]"
+                            className="h-12 px-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white min-w-[180px]"
                         >
                             <option value="all">All Categories</option>
                             {CATEGORY_OPTIONS.map(cat => (
                                 <option key={cat.value} value={cat.value}>{cat.icon} {cat.label}</option>
+                            ))}
+                        </select>
+                        <select
+                            value=""
+                            onChange={(e) => {
+                                // Filter by brand - simple implementation
+                                if (e.target.value) {
+                                    setSearchTerm(BRAND_OPTIONS.find(b => b.value === e.target.value)?.label || '');
+                                }
+                            }}
+                            className="h-12 px-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white min-w-[160px]"
+                        >
+                            <option value="">Filter by Brand</option>
+                            {BRAND_OPTIONS.filter(b => b.value).map(brand => (
+                                <option key={brand.value} value={brand.value}>{brand.label}</option>
                             ))}
                         </select>
                     </div>
@@ -707,7 +765,14 @@ export default function ProductManager() {
                                                             <CardDescription>{product.description}</CardDescription>
                                                         </div>
                                                     </div>
-                                                    <Badge className={stockStatus.color}>{stockStatus.label}</Badge>
+                                                    <div className="flex flex-col gap-1 items-end">
+                                                        <Badge className={stockStatus.color}>{stockStatus.label}</Badge>
+                                                        {product.brand && (
+                                                            <Badge variant="outline" className="text-xs">
+                                                                {BRAND_OPTIONS.find(b => b.value === product.brand)?.label || product.brand}
+                                                            </Badge>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </CardHeader>
                                             <CardContent className="space-y-4">
@@ -732,10 +797,10 @@ export default function ProductManager() {
                                                         <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                                                             <div
                                                                 className={`h-full transition-all duration-500 ${product.minStock && product.currentStock < product.minStock
-                                                                        ? 'bg-red-500'
-                                                                        : product.currentStock / product.maxStock > 0.8
-                                                                            ? 'bg-blue-500'
-                                                                            : 'bg-green-500'
+                                                                    ? 'bg-red-500'
+                                                                    : product.currentStock / product.maxStock > 0.8
+                                                                        ? 'bg-blue-500'
+                                                                        : 'bg-green-500'
                                                                     }`}
                                                                 style={{ width: `${Math.min((product.currentStock / product.maxStock) * 100, 100)}%` }}
                                                             />
@@ -864,19 +929,19 @@ export default function ProductManager() {
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: index * 0.05 }}
                                         className={`p-4 rounded-xl border-2 ${request.status === 'PENDING'
-                                                ? 'border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-900/20'
-                                                : request.status === 'APPROVED'
-                                                    ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
-                                                    : 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'
+                                            ? 'border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-900/20'
+                                            : request.status === 'APPROVED'
+                                                ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
+                                                : 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'
                                             }`}
                                     >
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-4">
                                                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${request.status === 'PENDING'
-                                                        ? 'bg-orange-200 dark:bg-orange-800'
-                                                        : request.status === 'APPROVED'
-                                                            ? 'bg-green-200 dark:bg-green-800'
-                                                            : 'bg-red-200 dark:bg-red-800'
+                                                    ? 'bg-orange-200 dark:bg-orange-800'
+                                                    : request.status === 'APPROVED'
+                                                        ? 'bg-green-200 dark:bg-green-800'
+                                                        : 'bg-red-200 dark:bg-red-800'
                                                     }`}>
                                                     <ShoppingCart className="w-6 h-6 text-gray-700 dark:text-gray-300" />
                                                 </div>
@@ -1006,6 +1071,36 @@ export default function ProductManager() {
                                         >
                                             {UNIT_OPTIONS.map(unit => (
                                                 <option key={unit.value} value={unit.value}>{unit.label}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* NEW: Brand & Product Group (like competitor) */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <Label htmlFor="brand" className="text-base">Brand</Label>
+                                        <select
+                                            id="brand"
+                                            value={formData.brand}
+                                            onChange={e => setFormData(prev => ({ ...prev, brand: e.target.value }))}
+                                            className="w-full h-12 px-3 mt-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                                        >
+                                            {BRAND_OPTIONS.map(brand => (
+                                                <option key={brand.value} value={brand.value}>{brand.label}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <Label htmlFor="productGroup" className="text-base">Product Group</Label>
+                                        <select
+                                            id="productGroup"
+                                            value={formData.productGroup}
+                                            onChange={e => setFormData(prev => ({ ...prev, productGroup: e.target.value }))}
+                                            className="w-full h-12 px-3 mt-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                                        >
+                                            {GROUP_OPTIONS.map(group => (
+                                                <option key={group.value} value={group.value}>{group.label}</option>
                                             ))}
                                         </select>
                                     </div>

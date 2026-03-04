@@ -1,0 +1,483 @@
+🧠 DIGIDHOODH — AI + HUMAN ENGINEERING RULEBOOK
+
+(PRD-Level, Enforced, Final)
+
+Core Philosophy
+AI writes code. Rules protect money.
+If a rule is violated → PR rejected → code deleted.
+
+🔴 LAYER 0 — ABSOLUTE INVARIANTS (NEVER BROKEN)
+
+These rules override all AI instructions.
+
+R0.1 — Money is Immutable
+
+❌ NO UPDATE on money tables
+
+❌ NO DELETE on money tables
+
+✅ Corrections = NEW ROW with negative values
+
+Money tables:
+
+milk_entries
+
+ledger_entries
+
+bills (amount)
+
+payments
+
+R0.2 — Ledger Is Source of Truth
+
+❌ Never store balances
+
+❌ Never calculate balance in client
+
+✅ Balance = SUM(credit) - SUM(debit)
+
+If AI suggests a balance column → REJECT
+
+R0.3 — Client NEVER Writes Financial Tables
+
+Client can ONLY:
+
+create draft input
+
+send intent
+
+Server / DB does:
+
+validation
+
+insertion
+
+ledger write
+
+If AI writes:
+
+supabase.from('ledger_entries').insert(...)
+
+
+→ DELETE IMMEDIATELY
+
+🟠 LAYER 1 — DATABASE RULES (AI MUST OBEY)
+R1.1 — Append-Only Tables
+
+AI MUST NOT:
+
+add UPDATE queries
+
+add DELETE queries
+
+add cascade deletes
+
+Enforced by:
+
+SQL REVOKE
+
+triggers
+
+pgTAP tests
+
+R1.2 — Ledger Entry Must Be Atomic
+
+Every money event MUST:
+
+insert exactly ONE ledger row
+
+credit XOR debit (never both)
+
+If AI adds:
+
+two ledger entries
+
+conditional inserts
+
+→ INVALID
+
+R1.3 — Offline Idempotency Is Mandatory
+
+For any offline-capable table:
+
+offline_id MUST exist
+
+offline_id MUST be unique
+
+duplicate inserts MUST no-op
+
+AI must NEVER remove idempotency logic.
+
+R1.4 — Foreign Keys Are Sacred
+
+AI MUST NOT:
+
+convert FK → UUID without reference
+
+remove FK constraints
+
+add nullable FK without reason
+
+🟡 LAYER 2 — SECURITY & RLS RULES
+R2.1 — RLS Is Required for ALL Tables
+
+No exceptions.
+
+If AI creates a table without:
+
+ENABLE ROW LEVEL SECURITY
+
+
+→ REJECT
+
+R2.2 — Same-Dairy Rule
+
+Every SELECT / INSERT / UPDATE must satisfy:
+
+row.dairy_id = auth.user.dairy_id
+
+
+AI must NEVER use:
+
+USING (true)
+
+R2.3 — Role Check on Every Mutation
+
+AI MUST enforce:
+
+owner / staff only
+
+never trust client role
+
+Role must be validated:
+
+in SQL RLS
+
+OR in Edge Function
+
+Both preferred.
+
+R2.4 — Farmers Are Read-Only
+
+Farmers can:
+
+view their data
+
+view their ledger
+
+view their bills
+
+Farmers CANNOT:
+
+insert
+
+update
+
+delete
+
+If AI allows farmer mutation → CRITICAL BUG
+
+🟢 LAYER 3 — EDGE FUNCTION RULES (BRAIN LAYER)
+R3.1 — Edge Functions Are the ONLY Writers
+
+All mutations go through:
+
+Edge Functions
+
+or DB triggers
+
+No direct client writes.
+
+R3.2 — Validation Order (MANDATORY)
+
+Edge function MUST validate in this order:
+
+Auth exists
+
+Role allowed
+
+Dairy match
+
+Input sanity
+
+Idempotency
+
+Insert
+
+Ledger write
+
+AI must not reorder.
+
+R3.3 — Deterministic Errors Only
+
+Edge Functions MUST:
+
+return clear error codes
+
+never fail silently
+
+never auto-fix money
+
+🔵 LAYER 4 — CLIENT / UI RULES (BEAUTY LAYER)
+R4.1 — Client Is Dumb
+
+Client:
+
+collects input
+
+shows data
+
+handles offline queue
+
+Client does NOT:
+
+calculate money
+
+decide rates
+
+adjust balances
+
+R4.2 — Offline Queue Rules
+
+Offline system MUST:
+
+queue actions
+
+replay in order
+
+retry safely
+
+never mutate old entries
+
+R4.3 — UX Truth Rule
+
+UI MUST:
+
+show ledger as final
+
+show “pending sync”
+
+never show fake balances
+
+🟣 LAYER 5 — AI CODING RULES (THIS IS CRITICAL)
+R5.1 — AI Is a Junior Engineer
+
+AI is NOT allowed to:
+
+change architecture
+
+refactor money logic
+
+remove constraints
+
+AI CAN:
+
+add screens
+
+add helpers
+
+write tests
+
+generate boilerplate
+
+R5.2 — AI Cannot Modify These Files Without Approval
+
+Protected files:
+
+schema.sql
+
+ledger triggers
+
+RLS policies
+
+offline sync engine
+
+If AI touches them → MANUAL REVIEW REQUIRED
+
+R5.3 — AI Output Must Be Justified
+
+Every AI output must answer:
+
+Which rule does this obey?
+
+Which invariant does this protect?
+
+If it can’t → reject.
+
+🧪 LAYER 6 — TEST RULES (NON-OPTIONAL)
+Required Tests (AI must generate if missing)
+
+Duplicate offline insert → no ledger change
+
+Update attempt on milk_entries → FAIL
+
+Farmer reads other farmer → FAIL
+
+Bill final → amount immutable
+
+Ledger credit + debit → FAIL
+
+If feature lacks tests → NO MERGE
+
+⚫ LAYER 7 — WHAT AI MUST NEVER DO (BLACKLIST)
+
+❌ Add balance columns
+❌ Store totals in tables
+❌ Use client-side money logic
+❌ Remove audit logs
+❌ Remove RLS for “performance”
+❌ Suggest NoSQL for money
+❌ Suggest microservices now
+❌ Suggest AI pricing logic
+
+🏛️ LAYER 8 — PRODUCT RULES (BUSINESS)
+
+Correctness > speed
+
+Trust > features
+
+Audit > UX sugar
+
+Simplicity > abstraction How YOU Should Use Anti-Gravity (Correct Way)
+✅ Where Anti-Gravity is PERFECT
+
+Use vibe coding for:
+
+UI / UX components
+
+forms
+
+dashboards
+
+charts
+
+filters
+
+search
+
+offline UI
+
+reports
+
+admin screens
+
+API wiring (NOT logic)
+
+test generation
+
+docs
+
+prompts
+
+refactors inside a module
+
+This is 70–80% of the product.
+
+❌ Where Anti-Gravity Is FORBIDDEN
+
+Never vibe-code:
+
+ledger logic
+
+money math
+
+schema changes
+
+triggers
+
+RLS policies
+
+offline sync core
+
+billing rules
+
+permissions
+
+Those are deterministic, not creative.
+
+3️⃣ Your Anti-Gravity Operating Rules (Simple & Enforced)
+🔴 Rule 1 — Architecture Is Untouchable
+
+Anti-Gravity can add, not change, these:
+
+database schema
+
+ledger logic
+
+invariants
+
+triggers
+
+RLS
+
+If AI suggests “simplify”, “optimize”, or “refactor” money logic → ❌ reject.
+
+🔵 Rule 2 — Intent First, Code Second
+
+You must always give intent, not instructions.
+
+❌ Bad:
+
+“Build milk entry screen”
+
+✅ Correct:
+
+“Build a milk entry screen UI that:
+
+does not calculate money
+
+sends raw input only
+
+supports offline queue
+
+shows ledger result read-only”
+
+Anti-Gravity works best with constraints, not freedom.
+
+🟢 Rule 3 — UI Is Allowed to Be Smart, Not Powerful
+
+UI can:
+
+auto-focus
+
+auto-fill
+
+format
+
+validate input
+
+preview calculations (labelled “estimate”)
+
+UI can NEVER:
+
+decide final amount
+
+mutate ledger
+
+bypass server
+
+🟣 Rule 4 — Every Vibe Must Pass the Checklist
+
+Before accepting AI output, ask:
+
+❓ Does this write money directly?
+
+❓ Does this bypass Edge Function?
+
+❓ Does this assume trust in client?
+
+❓ Does this remove idempotency?
+
+❓ Does this store balance?
+
+If any answer = YES → delete.
+
+⚫ Rule 5 — Anti-Gravity Is Layered
+
+Think in layers:
+
+Beauty (UI)        ← Anti-Gravity OK
+Flow (UX)          ← Anti-Gravity OK
+Wiring (API)       ← Anti-Gravity OK (review)
+Brain (Logic)      ← RULED, NOT VIBED
+Ledger (Money)     ← NEVER TOUCHED

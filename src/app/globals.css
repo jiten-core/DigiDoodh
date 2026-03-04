@@ -1,90 +1,91 @@
 /* 
- * DigiDhoodh - Premium Dairy Design System
- * Inspired by: Indian rural aesthetic, milk/cream textures, earthy warmth
- * Typography: Outfit (modern), Playfair Display (elegant headers)
- * NO generic AI look - authentic, warm, trustworthy
+ * DigiDhoodh - Bharat-First Dairy Design System
+ * Philosophy: Zero cognitive load, high trust, offline-honest
+ * Typography: Noto Sans Devanagari + Roboto, large readable text
+ * Core Rule: If a user has to think, the design has failed.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ===============================================
-   ROOT VARIABLES - INDIAN DAIRY PALETTE
+   BHARAT-FIRST DESIGN SYSTEM (LOCKED)
    =============================================== */
 :root {
-  /* Milk-inspired creams and whites */
-  --cream-50: 255 251 235;
-  --cream-100: 254 243 199;
-  --cream-200: 253 230 138;
+  /* === CORE PALETTE (NON-NEGOTIABLE) === */
+  --saffron: #FF9933;
+  /* Primary actions ONLY */
+  --farmer-green: #228B22;
+  /* Success, confirmations */
+  --milk-cream: #FFF8E7;
+  /* Main background (paper-ledger feel) */
+  --deep-black: #1A1A1A;
+  /* Text, icons (max readability) */
+  --pure-white: #FFFFFF;
+  /* Cards, inputs */
+  --alert-red: #DC143C;
+  /* Errors ONLY */
+  --golden-yellow: #FFD700;
+  /* Premium badges (rare use) */
 
-  /* Dairy green - fresh, natural, trustworthy */
-  --dairy-50: 240 253 244;
-  --dairy-100: 220 252 231;
-  --dairy-200: 187 247 208;
-  --dairy-300: 134 239 172;
-  --dairy-400: 74 222 128;
-  --dairy-500: 34 197 94;
-  --dairy-600: 22 163 74;
-  --dairy-700: 21 128 61;
-  --dairy-800: 22 101 52;
-  --dairy-900: 20 83 45;
+  /* === RGB Variants for Tailwind === */
+  --saffron-rgb: 255 153 51;
+  --green-rgb: 34 139 34;
+  --cream-rgb: 255 248 231;
+  --black-rgb: 26 26 26;
 
-  /* Terracotta - Indian earth, warmth */
-  --terra-50: 254 242 242;
-  --terra-100: 254 226 226;
-  --terra-200: 254 202 202;
-  --terra-300: 252 165 165;
-  --terra-400: 248 113 113;
-  --terra-500: 239 68 68;
-  --terra-600: 220 38 38;
-  --terra-700: 185 28 28;
+  /* === TYPOGRAPHY === */
+  --font-hindi: 'Noto Sans Devanagari', sans-serif;
+  --font-english: 'Roboto', sans-serif;
+  --text-body: 18px;
+  /* Minimum body text */
+  --text-number: 32px;
+  /* Large numbers central */
+  --line-height: 1.6;
 
-  /* Saffron - Indian accent, premium */
-  --saffron-50: 255 247 237;
-  --saffron-100: 255 237 213;
-  --saffron-200: 254 215 170;
-  --saffron-300: 253 186 116;
-  --saffron-400: 251 146 60;
-  --saffron-500: 249 115 22;
-  --saffron-600: 234 88 12;
-  --saffron-700: 194 65 12;
+  /* === TOUCH TARGETS (STRICT) === */
+  --touch-min: 56px;
+  /* Minimum touch target */
+  --btn-height: 56px;
+  --input-height: 56px;
+  --nav-icon: 32px;
+  --icon-standard: 24px;
 
-  /* Rich brown - earth, chocolate, warmth */
-  --earth-50: 250 246 243;
-  --earth-100: 245 236 230;
-  --earth-200: 232 214 201;
-  --earth-300: 214 184 163;
-  --earth-400: 193 149 118;
-  --earth-500: 172 118 81;
-  --earth-600: 146 93 60;
-  --earth-700: 120 70 44;
-  --earth-800: 95 53 33;
-  --earth-900: 75 40 25;
+  /* === COMPONENT TOKENS === */
+  --card-radius: 12px;
+  /* Simple, not fancy */
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+  /* Minimal shadow */
 
-  /* Shadcn compatibility */
-  --background: 30 25% 98%;
-  --foreground: 30 15% 15%;
+  /* === SHADCN COMPATIBILITY === */
+  --background: 40 100% 95%;
+  /* Milk cream */
+  --foreground: 0 0% 10%;
+  /* Deep black */
   --card: 0 0% 100%;
-  --card-foreground: 30 15% 15%;
+  --card-foreground: 0 0% 10%;
   --popover: 0 0% 100%;
-  --popover-foreground: 30 15% 15%;
-  --primary: 142 76% 36%;
+  --popover-foreground: 0 0% 10%;
+  --primary: 30 100% 60%;
+  /* Saffron */
   --primary-foreground: 0 0% 100%;
-  --secondary: 30 30% 96%;
-  --secondary-foreground: 30 15% 15%;
-  --muted: 30 20% 96%;
-  --muted-foreground: 30 10% 45%;
-  --accent: 25 95% 53%;
+  --secondary: 40 100% 97%;
+  --secondary-foreground: 0 0% 10%;
+  --muted: 40 30% 94%;
+  --muted-foreground: 0 0% 40%;
+  --accent: 120 61% 34%;
+  /* Farmer green */
   --accent-foreground: 0 0% 100%;
-  --destructive: 0 84% 60%;
+  --destructive: 348 83% 47%;
+  /* Alert red */
   --destructive-foreground: 0 0% 100%;
-  --border: 30 15% 90%;
-  --input: 30 15% 90%;
-  --ring: 142 76% 36%;
-  --radius: 0.75rem;
+  --border: 40 20% 88%;
+  --input: 40 20% 88%;
+  --ring: 30 100% 60%;
+  --radius: 12px;
 }
 
 .dark {
@@ -110,7 +111,7 @@
 }
 
 /* ===============================================
-   BASE STYLES
+   BASE STYLES - BHARAT FIRST
    =============================================== */
 @layer base {
   * {
@@ -118,33 +119,175 @@
   }
 
   html {
-    font-family: 'Outfit', 'Noto Sans Devanagari', system-ui, sans-serif;
+    font-family: 'Roboto', 'Noto Sans Devanagari', system-ui, sans-serif;
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-size: 18px;
+    /* Minimum body text per spec */
+    line-height: 1.6;
   }
 
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    background-color: var(--milk-cream);
+    color: var(--deep-black);
     text-rendering: optimizeLegibility;
   }
 
-  /* Premium headlines with Playfair */
+  /* Simple, readable headings */
   h1,
   h2,
-  h3 {
-    font-family: 'Playfair Display', 'Noto Sans Devanagari', serif;
-    letter-spacing: -0.02em;
-    font-weight: 600;
-  }
-
+  h3,
   h4,
   h5,
   h6 {
-    font-family: 'Outfit', 'Noto Sans Devanagari', sans-serif;
-    font-weight: 600;
+    font-family: 'Noto Sans Devanagari', 'Roboto', sans-serif;
+    font-weight: 700;
+    color: var(--deep-black);
+    line-height: 1.3;
   }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+
+  /* Big numbers - central to dairy UX */
+  .text-number {
+    font-size: var(--text-number);
+    font-weight: 700;
+    font-family: 'Roboto', sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  /* Hindi-primary text class */
+  .text-hindi {
+    font-family: 'Noto Sans Devanagari', sans-serif;
+  }
+}
+
+/* ===============================================
+   BHARAT-FIRST COMPONENT UTILITIES
+   =============================================== */
+
+/* Primary Button - Saffron, 56px height */
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 56px;
+  min-height: 56px;
+  padding: 0 1.5rem;
+  background-color: #FF9933;
+  color: white;
+  font-size: 1.125rem;
+  font-weight: 700;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Success Button - Farmer Green */
+.btn-success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 56px;
+  min-height: 56px;
+  padding: 0 1.5rem;
+  background-color: #228B22;
+  color: white;
+  font-size: 1.125rem;
+  font-weight: 700;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-success:active {
+  transform: scale(0.98);
+}
+
+/* Input Field - 56px height */
+.input-field {
+  width: 100%;
+  height: 56px;
+  min-height: 56px;
+  padding: 0 1rem;
+  font-size: 1.125rem;
+  background-color: #FFFFFF;
+  border: 2px solid #E5E5E5;
+  border-radius: 12px;
+  color: #1A1A1A;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #FF9933;
+}
+
+/* Card - Simple, paper-like */
+.card-simple {
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Offline Banner */
+.offline-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background-color: #FFF3CD;
+  border: 2px solid #FF9933;
+  border-radius: 12px;
+  color: #1A1A1A;
+  font-weight: 600;
+}
+
+/* Number Display */
+.number-display {
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: 'Roboto', sans-serif;
+  color: #1A1A1A;
+}
+
+.number-display-lg {
+  font-size: 3rem;
+}
+
+/* Touch Target */
+.touch-target {
+  min-width: 56px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ===============================================

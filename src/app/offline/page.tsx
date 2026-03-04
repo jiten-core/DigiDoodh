@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -15,7 +14,6 @@ import Link from 'next/link'
 
 export default function OfflinePage() {
     useEffect(() => {
-        // Check if back online
         const checkOnline = () => {
             if (navigator.onLine) {
                 window.location.reload()
@@ -32,32 +30,17 @@ export default function OfflinePage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-            >
+            <div>
                 <Card className="max-w-md w-full shadow-2xl">
                     <CardContent className="p-8 text-center">
                         {/* Offline Icon */}
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.1, 1],
-                                rotate: [0, 5, -5, 0]
-                            }}
-                            transition={{
-                                duration: 2,
-                                repeat: Infinity,
-                                repeatType: 'reverse'
-                            }}
-                            className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg"
-                        >
+                        <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
                             <WifiOff className="w-12 h-12 text-white" />
-                        </motion.div>
+                        </div>
 
-                        <h1 className="text-2xl font-bold mb-2">You're Offline</h1>
+                        <h1 className="text-2xl font-bold mb-2">You&apos;re Offline</h1>
                         <p className="text-gray-500 mb-6">
-                            No internet connection detected. But don't worry, you can still work!
+                            No internet connection detected. But don&apos;t worry, you can still work!
                         </p>
 
                         {/* Offline Features */}
@@ -81,15 +64,15 @@ export default function OfflinePage() {
                                 </li>
                                 <li className="flex items-center gap-2">
                                     <CheckCircle className="w-4 h-4" />
-                                    Print receipts
+                                    Generate bills
                                 </li>
                                 <li className="flex items-center gap-2">
                                     <CheckCircle className="w-4 h-4" />
-                                    Scan QR codes
+                                    View reports
                                 </li>
                             </ul>
                             <p className="text-xs text-gray-500 mt-3">
-                                Data will sync automatically when you're back online
+                                Data will sync automatically when you&apos;re back online
                             </p>
                         </div>
 
@@ -113,22 +96,12 @@ export default function OfflinePage() {
                         {/* Sync Status */}
                         <div className="mt-6 pt-4 border-t">
                             <p className="text-xs text-gray-400">
-                                Pending entries will be synced: <span className="font-mono">0 items</span>
+                                DigiDhoodh works fully offline! 📴
                             </p>
                         </div>
                     </CardContent>
                 </Card>
-
-                {/* Floating Animation */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1 }}
-                    className="text-center mt-6 text-sm text-gray-500"
-                >
-                    DigiDhoodh works offline! 📴
-                </motion.div>
-            </motion.div>
+            </div>
         </div>
     )
 }
