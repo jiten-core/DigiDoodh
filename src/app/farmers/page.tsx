@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Users, Plus, Search, Edit, Trash2, CheckCircle, XCircle, MapPin, Phone } from 'lucide-react';
+import { Users, Plus, Search, Edit, Trash2, CheckCircle, XCircle, MapPin, Phone, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useFarmers, useInitializeDB } from '@/db/hooks';
@@ -209,7 +209,7 @@ export default function FarmersPage() {
                                 </div>
 
                                 {/* Actions */}
-                                <div className="flex gap-2">
+                                <div className="flex gap-2 flex-wrap">
                                     <Button
                                         variant="outline"
                                         size="sm"
@@ -218,6 +218,16 @@ export default function FarmersPage() {
                                     >
                                         <Edit className="h-4 w-4 mr-2" />
                                         Edit
+                                    </Button>
+
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => router.push(`/farmers/qr?id=${farmer.id}`)}
+                                        className="border-green-400 text-green-600 hover:bg-green-50"
+                                        title="Generate QR Card"
+                                    >
+                                        <QrCode className="h-4 w-4" />
                                     </Button>
 
                                     <Button

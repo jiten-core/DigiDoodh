@@ -26,6 +26,7 @@ import {
 import { cancelBill } from '@/db/operations';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import type { jsPDF as JsPDFType } from 'jspdf';
 
 export default function ViewBillPage() {
     return (
@@ -173,6 +174,146 @@ function ViewBillContent() {
     const handlePrint = () => {
         window.print();
     };
+
+    // Handle PDF export
+    const handleExportPDF = useCallback(async () => {
+        if (!billData || !farmer || !bill) return;
+
+        // Dynamic import to avoid SSR issues
+        const { default: jsPDF } = await import('jspdf');
+        const { default: autoTable } = await import('jspdf-autotable');
+
+        const dairyName = (typeof window !== 'undefined' && localStorage.getItem('dd_dairy_name')) || 'My Dairy';
+        const ownerName = (typeof window !== 'undefined' && localStorage.getItem('dd_owner_name')) || '';
+        const address = (typeof window !== 'undefined' && localStorage.getItem('dd_address')) || '';
+        const phone = (typeof window !== 'undefined' && localStorage.getItem('dd_phone')) || '';
+
+        const doc: JsPDFType = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const W = doc.internal.pageSize.getWidth();
+
+        // ---- Header ----
+        doc.setFillColor(255, 138, 0); // saffron
+        doc.rect(0, 0, W, 28, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(18);
+        doc.text('DigiDhoodh', 14, 12);
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Dairy Management System', 14, 19);
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`BILL #${bill.bill_number}`, W - 14, 12, { align: 'right' });
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        const statusColor = bill.status === 'paid' ? '✓ PAID' : bill.status === 'pending' ? '⏳ PENDING' : '✗ CANCELLED';
+        doc.text(statusColor, W - 14, 19, { align: 'right' });
+
+        // ---- Dairy & Farmer Info ----
+        doc.setTextColor(30, 30, 30);
+        let y = 36;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text('FROM:', 14, y);
+        doc.text('BILL TO:', W / 2 + 6, y);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        y += 5;
+        doc.text(dairyName, 14, y);
+        doc.text(farmer.name, W / 2 + 6, y);
+        y += 4;
+        if (ownerName) { doc.text(ownerName, 14, y); }
+        doc.text(`Code: ${farmer.farmer_code}`, W / 2 + 6, y);
+        y += 4;
+        if (phone) { doc.text(`Ph: ${phone}`, 14, y); }
+        if (farmer.phone) { doc.text(`Ph: ${farmer.phone}`, W / 2 + 6, y); }
+        y += 4;
+        if (address) { doc.text(address, 14, y); }
+        if (farmer.village) { doc.text(`Village: ${farmer.village}`, W / 2 + 6, y); }
+
+        // ---- Period ----
+        y += 8;
+        const periodStr = `Period: ${new Date(bill.period_start).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} — ${new Date(bill.period_end).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        doc.text(periodStr, 14, y);
+
+        // ---- Milk Entries Table ----
+        y += 6;
+        doc.setTextColor(30, 30, 30);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text('Milk Collection Details', 14, y);
+
+        autoTable(doc, {
+            startY: y + 3,
+            head: [['#', 'Date', 'Shift', 'Qty (L)', 'FAT', 'SNF', 'Rate', 'Amount (₹)']],
+            body: billData.milkEntries.map((e, i) => [
+                i + 1,
+                new Date(e.entry_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
+                e.shift === 'morning' ? 'AM' : 'PM',
+                e.quantity.toFixed(2),
+                (e.fat || 0).toFixed(1),
+                (e.snf || 0).toFixed(1),
+                `₹${e.rate.toFixed(2)}`,
+                `₹${e.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`,
+            ]),
+            foot: [['', 'TOTAL', '', billData.totalMilk.toFixed(2) + ' L', '', '', `avg ₹${billData.avgRate.toFixed(2)}`, `₹${billData.milkAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`]],
+            headStyles: { fillColor: [255, 138, 0], textColor: 255, fontStyle: 'bold', fontSize: 8 },
+            footStyles: { fillColor: [240, 240, 240], fontStyle: 'bold', fontSize: 8 },
+            bodyStyles: { fontSize: 8 },
+            alternateRowStyles: { fillColor: [255, 251, 245] },
+            margin: { left: 14, right: 14 },
+            tableLineColor: [220, 220, 220],
+            tableLineWidth: 0.1,
+        });
+
+        // ---- Bill Summary ----
+        const finalY = (doc as any).lastAutoTable.finalY + 6;
+        const summaryX = W - 80;
+
+        doc.setFillColor(255, 251, 245);
+        doc.roundedRect(summaryX - 4, finalY - 2, 80, billData.debits > 0 ? 36 : 28, 3, 3, 'F');
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(60, 60, 60);
+        doc.text('Milk Amount:', summaryX, finalY + 5);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`₹${billData.milkAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, W - 14, finalY + 5, { align: 'right' });
+
+        let sy = finalY + 11;
+        if (billData.debits > 0) {
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(220, 50, 50);
+            doc.text('Deductions:', summaryX, sy);
+            doc.setFont('helvetica', 'bold');
+            doc.text(`-₹${billData.debits.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, W - 14, sy, { align: 'right' });
+            sy += 6;
+        }
+
+        doc.setDrawColor(255, 138, 0);
+        doc.setLineWidth(0.5);
+        doc.line(summaryX - 2, sy + 1, W - 14, sy + 1);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(255, 138, 0);
+        doc.text('NET PAYABLE:', summaryX, sy + 8);
+        doc.text(`₹${bill.net_payable.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, W - 14, sy + 8, { align: 'right' });
+
+        // ---- Footer ----
+        const pageH = doc.internal.pageSize.getHeight();
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7);
+        doc.setTextColor(150, 150, 150);
+        doc.text(`Generated by DigiDhoodh on ${new Date().toLocaleDateString('en-IN')}   |   Thank you for your business!`, W / 2, pageH - 8, { align: 'center' });
+
+        doc.save(`Bill_${bill.bill_number}_${farmer.name.replace(/\s+/g, '_')}.pdf`);
+
+        toast({ title: 'PDF Downloaded', description: `Bill #${bill.bill_number} saved as PDF` });
+    }, [bill, farmer, billData, toast]);
 
     // Handle CSV export
     const handleExportCSV = useCallback(() => {
@@ -373,6 +514,15 @@ function ViewBillContent() {
                         >
                             <Share2 className="h-4 w-4 mr-1" />
                             WhatsApp
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleExportPDF}
+                            className="border-red-500 text-red-600 hover:bg-red-50"
+                        >
+                            <Download className="h-4 w-4 mr-1" />
+                            PDF
                         </Button>
                         <Button
                             variant="outline"
