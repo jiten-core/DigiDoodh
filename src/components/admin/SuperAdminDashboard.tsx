@@ -50,6 +50,80 @@ import {
     DollarSign
 } from 'lucide-react';
 
+// Official DigiDhoodh Pricing (GST Included) - Locked from PRD
+const PRICING_PLANS = {
+    BASIC: {
+        name: 'Basic',
+        emoji: '🟩',
+        monthlyPrice: 199,
+        yearlyPrice: 1999,
+        effectiveMonthly: 166,
+        maxFarmers: 300,
+        maxStaff: 1,
+        editHistory: 30, // days
+        features: [
+            'Milk collection (Morning/Evening)',
+            'FAT/SNF auto rate calculation',
+            '1 rate chart',
+            'Farmer ledger',
+            'Advance & loan management',
+            '10-day / monthly billing',
+            'PDF bill generation',
+            'WhatsApp (limited)',
+            'Offline mode + auto sync',
+            'Simple dashboard',
+            'Multi-language UI',
+            'Farmer login (view only)',
+        ],
+        notIncluded: ['Inventory', 'Product requests', 'Unlimited WhatsApp', 'Advanced reports'],
+    },
+    PREMIUM: {
+        name: 'Premium',
+        emoji: '🟧',
+        badge: '⭐ MOST CHOSEN',
+        monthlyPrice: 299,
+        yearlyPrice: 2999,
+        effectiveMonthly: 249,
+        maxFarmers: 600,
+        maxStaff: 3,
+        editHistory: 90, // days
+        features: [
+            'Everything in BASIC',
+            'Unlimited WhatsApp notifications',
+            'Multiple rate charts',
+            'Farmer-specific rates',
+            'Staff permission controls',
+            'Advanced reports',
+            'Faster support',
+            'No ads anywhere',
+        ],
+        notIncluded: ['Inventory & product sales'],
+    },
+    PREMIUM_PLUS: {
+        name: 'Premium+',
+        emoji: '🟦',
+        monthlyPrice: 599,
+        yearlyPrice: 5999,
+        effectiveMonthly: 499,
+        maxFarmers: -1, // Unlimited
+        maxStaff: -1, // Unlimited
+        editHistory: 365, // days
+        features: [
+            'Everything in PREMIUM',
+            '✅ Inventory management',
+            '✅ Farmer product request system',
+            '✅ Product sales to farmers',
+            '✅ Auto ledger adjustment',
+            '✅ GST invoice (optional)',
+            '✅ Priority support',
+            '✅ Unlimited exports',
+        ],
+        notIncluded: [],
+    },
+} as const;
+
+type PlanKey = keyof typeof PRICING_PLANS;
+
 // Interfaces
 interface Dairy {
     id: string;
@@ -242,7 +316,7 @@ export default function SuperAdminDashboard() {
             dairyName: 'Shree Krishna Dairy',
             plan: 'PREMIUM',
             status: 'ACTIVE',
-            amount: 2999,
+            amount: PRICING_PLANS.PREMIUM.yearlyPrice, // ₹2,999/year
             startDate: '2025-03-15',
             endDate: '2026-03-15',
             autoRenew: true,
@@ -253,10 +327,32 @@ export default function SuperAdminDashboard() {
             dairyName: 'Gau Mata Dairy',
             plan: 'PREMIUM_PLUS',
             status: 'ACTIVE',
-            amount: 5999,
+            amount: PRICING_PLANS.PREMIUM_PLUS.yearlyPrice, // ₹5,999/year
             startDate: '2025-06-20',
             endDate: '2026-06-20',
             autoRenew: true,
+        },
+        {
+            id: '3',
+            dairyId: '3',
+            dairyName: 'Village Fresh Dairy',
+            plan: 'BASIC',
+            status: 'TRIAL',
+            amount: 0, // Trial period
+            startDate: '2026-01-20',
+            endDate: '2026-02-10',
+            autoRenew: false,
+        },
+        {
+            id: '4',
+            dairyId: '4',
+            dairyName: 'Shakti Dairy Farm',
+            plan: 'BASIC',
+            status: 'EXPIRED',
+            amount: PRICING_PLANS.BASIC.yearlyPrice, // ₹1,999/year
+            startDate: '2025-01-01',
+            endDate: '2026-01-01',
+            autoRenew: false,
         },
     ];
 
@@ -503,7 +599,7 @@ export default function SuperAdminDashboard() {
 
                 {/* Tabs */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="grid w-full grid-cols-4 bg-white dark:bg-gray-800 rounded-xl p-1 shadow-lg">
+                    <TabsList className="grid w-full grid-cols-5 bg-white dark:bg-gray-800 rounded-xl p-1 shadow-lg">
                         <TabsTrigger value="overview" className="rounded-lg">
                             <BarChart3 className="w-4 h-4 mr-2" />
                             Overview
@@ -515,6 +611,10 @@ export default function SuperAdminDashboard() {
                         <TabsTrigger value="subscriptions" className="rounded-lg">
                             <CreditCard className="w-4 h-4 mr-2" />
                             Subscriptions
+                        </TabsTrigger>
+                        <TabsTrigger value="pricing" className="rounded-lg data-[state=active]:bg-saffron-100 data-[state=active]:text-saffron-700 dark:data-[state=active]:bg-saffron-900/30 dark:data-[state=active]:text-saffron-400">
+                            <IndianRupee className="w-4 h-4 mr-2" />
+                            Pricing Plans
                         </TabsTrigger>
                         <TabsTrigger value="system" className="rounded-lg data-[state=active]:bg-earth-100 data-[state=active]:text-earth-700 dark:data-[state=active]:bg-earth-900/30 dark:data-[state=active]:text-earth-400">
                             <Server className="w-4 h-4 mr-2" />
@@ -764,6 +864,174 @@ export default function SuperAdminDashboard() {
                                 </div>
                             </CardContent>
                         </Card>
+                    </TabsContent>
+
+
+                    {/* Pricing Plans Tab */}
+                    <TabsContent value="pricing" className="mt-6">
+                        <div className="space-y-6">
+                            {/* Header */}
+                            <div className="text-center mb-8">
+                                <h2 className="text-2xl font-display font-bold text-foreground">💰 DigiDhoodh Pricing Plans</h2>
+                                <p className="text-muted-foreground mt-2">GST Included • Only Dairy Owner Pays • Farmers & Staff Free</p>
+                            </div>
+
+                            {/* Pricing Cards */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {/* BASIC Plan */}
+                                <Card className="card-premium border-2 border-green-200 dark:border-green-800">
+                                    <CardHeader className="text-center pb-2 bg-green-50 dark:bg-green-900/20 rounded-t-xl">
+                                        <div className="text-4xl mb-2">🟩</div>
+                                        <CardTitle className="text-2xl font-display">BASIC</CardTitle>
+                                        <CardDescription>Best for: Small village dairies</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="p-6 space-y-4">
+                                        <div className="text-center">
+                                            <span className="text-4xl font-bold text-green-600">₹{PRICING_PLANS.BASIC.monthlyPrice}</span>
+                                            <span className="text-muted-foreground">/month</span>
+                                            <p className="text-sm text-green-600 mt-1">Yearly ₹{PRICING_PLANS.BASIC.yearlyPrice} (₹{PRICING_PLANS.BASIC.effectiveMonthly}/mo)</p>
+                                        </div>
+                                        <div className="border-t pt-4">
+                                            <p className="font-semibold mb-2">Limits:</p>
+                                            <ul className="text-sm space-y-1 text-muted-foreground">
+                                                <li>👨‍🌾 Farmers: up to <strong>{PRICING_PLANS.BASIC.maxFarmers}</strong></li>
+                                                <li>👥 Staff: <strong>{PRICING_PLANS.BASIC.maxStaff}</strong></li>
+                                                <li>✏️ Edit history: <strong>{PRICING_PLANS.BASIC.editHistory} days</strong></li>
+                                            </ul>
+                                        </div>
+                                        <div className="border-t pt-4">
+                                            <p className="font-semibold mb-2 text-green-600">✅ Features:</p>
+                                            <ul className="text-xs space-y-1 text-muted-foreground">
+                                                {PRICING_PLANS.BASIC.features.map((f, i) => (
+                                                    <li key={i}>• {f}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                        <div className="border-t pt-4">
+                                            <p className="font-semibold mb-2 text-red-500">❌ Not Included:</p>
+                                            <ul className="text-xs space-y-1 text-muted-foreground">
+                                                {PRICING_PLANS.BASIC.notIncluded.map((f, i) => (
+                                                    <li key={i}>• {f}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                {/* PREMIUM Plan */}
+                                <Card className="card-premium border-2 border-orange-300 dark:border-orange-700 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 bg-saffron-500 text-white text-xs px-3 py-1 rounded-bl-lg font-bold">
+                                        ⭐ MOST CHOSEN
+                                    </div>
+                                    <CardHeader className="text-center pb-2 bg-saffron-50 dark:bg-saffron-900/20 rounded-t-xl">
+                                        <div className="text-4xl mb-2">🟧</div>
+                                        <CardTitle className="text-2xl font-display">PREMIUM</CardTitle>
+                                        <CardDescription>Best for: Growing dairies</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="p-6 space-y-4">
+                                        <div className="text-center">
+                                            <span className="text-4xl font-bold text-saffron-600">₹{PRICING_PLANS.PREMIUM.monthlyPrice}</span>
+                                            <span className="text-muted-foreground">/month</span>
+                                            <p className="text-sm text-saffron-600 mt-1">Yearly ₹{PRICING_PLANS.PREMIUM.yearlyPrice} (₹{PRICING_PLANS.PREMIUM.effectiveMonthly}/mo)</p>
+                                        </div>
+                                        <div className="border-t pt-4">
+                                            <p className="font-semibold mb-2">Limits:</p>
+                                            <ul className="text-sm space-y-1 text-muted-foreground">
+                                                <li>👨‍🌾 Farmers: up to <strong>{PRICING_PLANS.PREMIUM.maxFarmers}</strong></li>
+                                                <li>👥 Staff: <strong>{PRICING_PLANS.PREMIUM.maxStaff}</strong></li>
+                                                <li>✏️ Edit history: <strong>{PRICING_PLANS.PREMIUM.editHistory} days</strong></li>
+                                            </ul>
+                                        </div>
+                                        <div className="border-t pt-4">
+                                            <p className="font-semibold mb-2 text-saffron-600">✅ Features:</p>
+                                            <ul className="text-xs space-y-1 text-muted-foreground">
+                                                {PRICING_PLANS.PREMIUM.features.map((f, i) => (
+                                                    <li key={i}>• {f}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                        <div className="border-t pt-4">
+                                            <p className="font-semibold mb-2 text-red-500">❌ Not Included:</p>
+                                            <ul className="text-xs space-y-1 text-muted-foreground">
+                                                {PRICING_PLANS.PREMIUM.notIncluded.map((f, i) => (
+                                                    <li key={i}>• {f}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                {/* PREMIUM+ Plan */}
+                                <Card className="card-premium border-2 border-blue-300 dark:border-blue-700">
+                                    <CardHeader className="text-center pb-2 bg-blue-50 dark:bg-blue-900/20 rounded-t-xl">
+                                        <div className="text-4xl mb-2">🟦</div>
+                                        <CardTitle className="text-2xl font-display">PREMIUM+</CardTitle>
+                                        <CardDescription>Best for: Large dairies, societies</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="p-6 space-y-4">
+                                        <div className="text-center">
+                                            <span className="text-4xl font-bold text-blue-600">₹{PRICING_PLANS.PREMIUM_PLUS.monthlyPrice}</span>
+                                            <span className="text-muted-foreground">/month</span>
+                                            <p className="text-sm text-blue-600 mt-1">Yearly ₹{PRICING_PLANS.PREMIUM_PLUS.yearlyPrice} (₹{PRICING_PLANS.PREMIUM_PLUS.effectiveMonthly}/mo)</p>
+                                        </div>
+                                        <div className="border-t pt-4">
+                                            <p className="font-semibold mb-2">Limits:</p>
+                                            <ul className="text-sm space-y-1 text-muted-foreground">
+                                                <li>👨‍🌾 Farmers: <strong>Unlimited</strong></li>
+                                                <li>👥 Staff: <strong>Unlimited</strong></li>
+                                                <li>✏️ Edit history: <strong>{PRICING_PLANS.PREMIUM_PLUS.editHistory} days</strong></li>
+                                            </ul>
+                                        </div>
+                                        <div className="border-t pt-4">
+                                            <p className="font-semibold mb-2 text-blue-600">✅ Features:</p>
+                                            <ul className="text-xs space-y-1 text-muted-foreground">
+                                                {PRICING_PLANS.PREMIUM_PLUS.features.map((f, i) => (
+                                                    <li key={i}>• {f}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </div>
+
+                            {/* Comparison Table */}
+                            <Card className="card-premium mt-8">
+                                <CardHeader>
+                                    <CardTitle className="font-display">📊 Plan vs Feature Comparison</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-sm">
+                                            <thead>
+                                                <tr className="border-b">
+                                                    <th className="text-left py-3 px-4 font-semibold">Feature</th>
+                                                    <th className="text-center py-3 px-4 font-semibold text-green-600">🟩 BASIC ₹199</th>
+                                                    <th className="text-center py-3 px-4 font-semibold text-saffron-600">🟧 PREMIUM ₹299</th>
+                                                    <th className="text-center py-3 px-4 font-semibold text-blue-600">🟦 PREMIUM+ ₹599</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y">
+                                                <tr><td className="py-2 px-4">Farmers</td><td className="text-center">Up to 300</td><td className="text-center">Up to 600</td><td className="text-center font-bold">Unlimited</td></tr>
+                                                <tr><td className="py-2 px-4">Staff</td><td className="text-center">1</td><td className="text-center">3</td><td className="text-center font-bold">Unlimited</td></tr>
+                                                <tr><td className="py-2 px-4">Edit History</td><td className="text-center">30 days</td><td className="text-center">90 days</td><td className="text-center font-bold">365 days</td></tr>
+                                                <tr><td className="py-2 px-4">Milk Collection</td><td className="text-center">✅</td><td className="text-center">✅</td><td className="text-center">✅</td></tr>
+                                                <tr><td className="py-2 px-4">FAT / SNF Rate</td><td className="text-center">✅</td><td className="text-center">✅</td><td className="text-center">✅</td></tr>
+                                                <tr><td className="py-2 px-4">Rate Charts</td><td className="text-center">1</td><td className="text-center">Multiple</td><td className="text-center font-bold">Unlimited</td></tr>
+                                                <tr><td className="py-2 px-4">Farmer Ledger</td><td className="text-center">✅</td><td className="text-center">✅</td><td className="text-center">✅</td></tr>
+                                                <tr><td className="py-2 px-4">Billing (PDF)</td><td className="text-center">✅</td><td className="text-center">✅</td><td className="text-center">✅</td></tr>
+                                                <tr><td className="py-2 px-4">WhatsApp</td><td className="text-center">Limited</td><td className="text-center font-bold">Unlimited</td><td className="text-center font-bold">Unlimited</td></tr>
+                                                <tr><td className="py-2 px-4">Offline Mode</td><td className="text-center">✅</td><td className="text-center">✅</td><td className="text-center">✅</td></tr>
+                                                <tr><td className="py-2 px-4">Inventory</td><td className="text-center text-red-500">❌</td><td className="text-center text-red-500">❌</td><td className="text-center text-green-600 font-bold">✅</td></tr>
+                                                <tr><td className="py-2 px-4">Product Requests</td><td className="text-center text-red-500">❌</td><td className="text-center text-red-500">❌</td><td className="text-center text-green-600 font-bold">✅</td></tr>
+                                                <tr><td className="py-2 px-4">GST Invoice</td><td className="text-center text-red-500">❌</td><td className="text-center text-red-500">❌</td><td className="text-center text-green-600 font-bold">✅</td></tr>
+                                                <tr><td className="py-2 px-4">Priority Support</td><td className="text-center text-red-500">❌</td><td className="text-center text-red-500">❌</td><td className="text-center text-green-600 font-bold">✅</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <p className="text-center text-xs text-muted-foreground mt-4">(GST Included in all prices)</p>
+                                </CardContent>
+                            </Card>
+                        </div>
                     </TabsContent>
 
                     {/* System Health Tab */}

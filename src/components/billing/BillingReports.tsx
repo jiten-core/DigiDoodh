@@ -113,10 +113,18 @@ export default function BillingReports() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [activeTab, setActiveTab] = useState('bills');
+  const [advances, setAdvances] = useState<any[]>([]);
+  const [isAdvanceDialogOpen, setIsAdvanceDialogOpen] = useState(false);
+  const [advanceFormData, setAdvanceFormData] = useState({
+    farmerId: '',
+    amount: '',
+    reason: '',
+    date: new Date().toISOString().split('T')[0]
+  });
 
   const [generateFormData, setGenerateFormData] = useState({
     type: 'farmer' as const,
-    period: '10-day' as '10-day' | 'monthly' | 'custom',
+    period: '10-day' as '1-day' | '7-day' | '10-day' | '15-day' | 'monthly' | 'custom',
     startDate: '',
     endDate: '',
     recipientId: '',
@@ -431,9 +439,9 @@ export default function BillingReports() {
                     </p>
                   </div>
                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 ${stat.color === 'blue' ? 'bg-blue-500/10 text-blue-600' :
-                      stat.color === 'orange' ? 'bg-orange-500/10 text-orange-600' :
-                        stat.color === 'emerald' ? 'bg-emerald-500/10 text-emerald-600' :
-                          'bg-rose-500/10 text-rose-600'
+                    stat.color === 'orange' ? 'bg-orange-500/10 text-orange-600' :
+                      stat.color === 'emerald' ? 'bg-emerald-500/10 text-emerald-600' :
+                        'bg-rose-500/10 text-rose-600'
                     }`}>
                     <stat.icon className="w-6 h-6" />
                   </div>
@@ -444,9 +452,9 @@ export default function BillingReports() {
                     animate={{ width: '70%' }}
                     transition={{ duration: 1, delay: 0.5 + i * 0.1 }}
                     className={`h-full ${stat.color === 'blue' ? 'bg-blue-500' :
-                        stat.color === 'orange' ? 'bg-orange-500' :
-                          stat.color === 'emerald' ? 'bg-emerald-500' :
-                            'bg-rose-500'
+                      stat.color === 'orange' ? 'bg-orange-500' :
+                        stat.color === 'emerald' ? 'bg-emerald-500' :
+                          'bg-rose-500'
                       }`}
                   />
                 </div>
@@ -531,7 +539,10 @@ export default function BillingReports() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="1-day">Daily (1-Day)</SelectItem>
+                      <SelectItem value="7-day">Weekly (7-Day)</SelectItem>
                       <SelectItem value="10-day">10-Day</SelectItem>
+                      <SelectItem value="15-day">15-Day</SelectItem>
                       <SelectItem value="monthly">Monthly</SelectItem>
                       <SelectItem value="custom">Custom</SelectItem>
                     </SelectContent>
@@ -586,6 +597,7 @@ export default function BillingReports() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="bills">Bills</TabsTrigger>
+          <TabsTrigger value="advances">Advances</TabsTrigger>
           <TabsTrigger value="reports">Reports</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
@@ -678,6 +690,75 @@ export default function BillingReports() {
                 </Table>
               </div>
             </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="advances" className="space-y-4">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold">Advance Payments</h3>
+            <Dialog open={isAdvanceDialogOpen} onOpenChange={setIsAdvanceDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-orange-600 hover:bg-orange-700 h-10 px-6 rounded-xl shadow-lg">
+                  <DollarSign className="w-4 h-4 mr-2" />
+                  Issue Advance
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="rounded-[2rem] p-8 max-w-sm">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-black">Issue Advance</DialogTitle>
+                  <DialogDescription className="font-medium text-slate-400">Record a cash advance for a farmer.</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-6 pt-6">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black tracking-widest uppercase text-slate-400">Farmer</Label>
+                    <Select onValueChange={(v) => setAdvanceFormData({ ...advanceFormData, farmerId: v })}>
+                      <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue placeholder="Select Farmer" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">Ramesh Kumar</SelectItem>
+                        <SelectItem value="2">Sunita Devi</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black tracking-widest uppercase text-slate-400">Amount (₹)</Label>
+                    <Input type="number" className="h-12 rounded-xl text-xl font-black border-slate-200" placeholder="500" value={advanceFormData.amount} onChange={(e) => setAdvanceFormData({ ...advanceFormData, amount: e.target.value })} />
+                  </div>
+                  <Button className="w-full bg-orange-600 hover:bg-orange-700 h-14 rounded-2xl text-lg font-black shadow-xl shadow-orange-600/20 active:scale-95 transition-all" onClick={() => {
+                    setIsAdvanceDialogOpen(false);
+                  }}>
+                    Confirm & Issue
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          <Card className="rounded-[2.5rem] overflow-hidden border-0 shadow-xl shadow-slate-200/50">
+            <Table>
+              <TableHeader className="bg-slate-50/50">
+                <TableRow className="border-slate-100">
+                  <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-400">Date</TableHead>
+                  <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-400">Farmer</TableHead>
+                  <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-400">Amount</TableHead>
+                  <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-400">Reason</TableHead>
+                  <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-400">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {[
+                  { date: '2024-03-20', farmer: 'Ramesh Kumar', amount: 2000, reason: 'Marriage', status: 'Approved' },
+                  { date: '2024-03-18', farmer: 'Sunita Devi', amount: 500, reason: 'Feed', status: 'Approved' },
+                ].map((adv, i) => (
+                  <TableRow key={i} className="border-slate-50 hover:bg-slate-50/50 transition-colors">
+                    <TableCell className="font-bold text-slate-900">{adv.date}</TableCell>
+                    <TableCell className="font-medium text-slate-600">{adv.farmer}</TableCell>
+                    <TableCell className="text-red-500 font-black">₹{adv.amount}</TableCell>
+                    <TableCell className="text-slate-400 text-sm italic">{adv.reason}</TableCell>
+                    <TableCell><Badge className="bg-green-100 text-green-700 border-0 font-black text-[10px] rounded-lg">Approved</Badge></TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </Card>
         </TabsContent>
 

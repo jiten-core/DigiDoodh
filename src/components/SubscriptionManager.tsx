@@ -54,7 +54,7 @@ export default function SubscriptionManager() {
     try {
       const planData = PLANS[planKey as keyof typeof PLANS];
       await razorpayPayment.openCheckout({
-        amount: planData.price * 100,
+        amount: planData.monthlyPrice * 100,
         currency: 'INR',
         name: 'DigiDoodh',
         description: `${planData.name} Plan Subscription`,
@@ -157,10 +157,10 @@ export default function SubscriptionManager() {
             </div>
             <div className="text-right">
               <p className="text-2xl font-bold">
-                {PLANS[subscription?.plan as keyof typeof PLANS]?.name || 'Free'}
+                {PLANS[subscription?.plan?.toUpperCase() as keyof typeof PLANS]?.name || 'Free'}
               </p>
               <p className="text-sm text-muted-foreground">
-                ₹{PLANS[subscription?.plan as keyof typeof PLANS]?.price || 0}/month
+                ₹{PLANS[subscription?.plan?.toUpperCase() as keyof typeof PLANS]?.monthlyPrice || 0}/month
               </p>
             </div>
           </div>
@@ -185,7 +185,7 @@ export default function SubscriptionManager() {
                       {isCurrentPlan && <Check className="h-5 w-5 text-green-500" />}
                     </CardTitle>
                     <CardDescription>
-                      ₹{planData.price}/month
+                      ₹{planData.monthlyPrice}/month
                     </CardDescription>
                   </CardHeader>
                   <CardContent>

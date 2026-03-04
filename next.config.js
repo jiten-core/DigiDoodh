@@ -96,10 +96,13 @@ const withPWA = require('next-pwa')({
 
     // Precache important pages and assets
     additionalManifestEntries: [
-        { url: '/offline', revision: '1' },
-        { url: '/dashboard', revision: '1' },
-        { url: '/dashboard/milk', revision: '1' },
-        { url: '/dashboard/farmers', revision: '1' },
+        { url: '/offline', revision: '2' },
+        { url: '/dashboard', revision: '2' },
+        { url: '/milk-entry', revision: '2' },
+        { url: '/farmers', revision: '2' },
+        { url: '/bills', revision: '2' },
+        { url: '/reports', revision: '2' },
+        { url: '/settings', revision: '2' },
     ],
 
     // Fallback pages for offline
@@ -147,6 +150,10 @@ const nextConfig = {
     },
 
     // Headers for PWA and security
+    // Note: headers() is not compatible with output: 'export' (static export mode)
+    // These headers should be configured in your web server (nginx, Apache, etc.)
+    // or in Electron's main process for the desktop app
+    /*
     async headers() {
         return [
             {
@@ -181,6 +188,7 @@ const nextConfig = {
             },
         ]
     },
+    */
 }
 
 module.exports = withPWA(nextConfig)

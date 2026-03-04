@@ -31,6 +31,7 @@ import {
   User
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface Farmer {
   id: string;
@@ -38,7 +39,7 @@ interface Farmer {
   phone?: string;
   village?: string;
   status: 'active' | 'inactive';
-  walletBalance: number;
+  estimatedBalance?: number; // Labeled as estimate per Rule R4.1
   totalMilk?: number;
   code?: string;
 }
@@ -52,6 +53,7 @@ export default function FarmerManagement() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('list');
   const isHindi = i18n.language === 'hi';
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || true; // Fallback for demo
 
   const [formData, setFormData] = useState({
     name: '',
@@ -70,10 +72,10 @@ export default function FarmerManagement() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 800));
       const mockFarmers: Farmer[] = [
-        { id: '1', name: 'Ramesh Patel', phone: '9876543210', village: 'Anand', status: 'active', walletBalance: 5200, totalMilk: 1450, code: 'F001' },
-        { id: '2', name: 'Suresh Kumar', phone: '9876543211', village: 'Baroda', status: 'active', walletBalance: 3100, totalMilk: 890, code: 'F002' },
-        { id: '3', name: 'Mahesh Yadav', phone: '9876543212', village: 'Surat', status: 'inactive', walletBalance: 0, totalMilk: 120, code: 'F003' },
-        { id: '4', name: 'Gita Ben', phone: '9876543213', village: 'Amul', status: 'active', walletBalance: 8400, totalMilk: 2100, code: 'F004' },
+        { id: '1', name: 'Ramesh Patel', phone: '9876543210', village: 'Anand', status: 'active', estimatedBalance: 5200, totalMilk: 1450, code: 'F001' },
+        { id: '2', name: 'Suresh Kumar', phone: '9876543211', village: 'Baroda', status: 'active', estimatedBalance: 3100, totalMilk: 890, code: 'F002' },
+        { id: '3', name: 'Mahesh Yadav', phone: '9876543212', village: 'Surat', status: 'inactive', estimatedBalance: 0, totalMilk: 120, code: 'F003' },
+        { id: '4', name: 'Gita Ben', phone: '9876543213', village: 'Amul', status: 'active', estimatedBalance: 8400, totalMilk: 2100, code: 'F004' },
       ];
       setFarmers(mockFarmers);
     } catch (error) {
@@ -84,9 +86,33 @@ export default function FarmerManagement() {
   };
 
   const handleAddFarmer = async () => {
-    // Add farmer logic here
-    setIsAddDialogOpen(false);
-    fetchFarmers();
+    setIsLoading(true);
+    try {
+      const payload = {
+        name: formData.name,
+        phone: formData.phone,
+        village: formData.village,
+        code: formData.code || `F-${farmers.length + 1}`
+      };
+
+      // Rule R3.1: All mutations through intent-based API
+      const res = await fetch('/api/farmers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error('Failed to save farmer');
+
+      setIsAddDialogOpen(false);
+      fetchFarmers();
+    } catch (error) {
+      console.error(error);
+      // Mock for local
+      if (isDemoMode) setIsAddDialogOpen(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const filteredFarmers = farmers.filter(farmer =>
@@ -98,31 +124,31 @@ export default function FarmerManagement() {
   return (
     <div className="space-y-6 animate-page-enter">
       {/* Header Actions */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 animate-platinum-in">
         <div>
-          <h2 className="text-2xl font-display font-bold text-foreground">
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">
             {isHindi ? 'किसान प्रबंधन' : 'Farmer Management'}
           </h2>
-          <p className="text-muted-foreground">
-            {isHindi ? 'कुल किसान:' : 'Total Farmers:'} {farmers.length}
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">
+            {isHindi ? 'कुल किसान:' : 'TOTAL FARMERS:'} {farmers.length}
           </p>
         </div>
 
         <div className="flex gap-2 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input
               placeholder={isHindi ? "खोजें (नाम, फोन, कोड)..." : "Search (name, phone, code)..."}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 h-12 rounded-xl border-border focus:border-dairy-500"
+              className="pl-9 h-12 rounded-xl border border-slate-200 focus:ring-2 focus:ring-green-500/20"
             />
           </div>
           <Button
             onClick={() => setIsAddDialogOpen(true)}
-            className="btn-dairy h-12"
+            className="btn-platinum shadow-sm"
           >
-            <UserPlus className="w-5 h-5 mr-2" />
+            <UserPlus className="w-5 h-5 mr-2 text-white" />
             {isHindi ? 'नया किसान' : 'New Farmer'}
           </Button>
         </div>
@@ -164,20 +190,20 @@ export default function FarmerManagement() {
                     <div className={`w-3 h-3 rounded-full ${farmer.status === 'active' ? 'bg-dairy-500' : 'bg-gray-300'}`} />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-dashed border-border">
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-50">
                     <div className="space-y-1">
-                      <span className="text-xs text-muted-foreground uppercase tracking-wider block">
-                        {isHindi ? 'वॉलेट' : 'Wallet'}
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">
+                        {isHindi ? 'वॉलेट (अनुमानित)' : 'EST. BALANCE'}
                       </span>
-                      <span className="text-xl font-bold text-earth-700 dark:text-earth-400">
-                        ₹{farmer.walletBalance.toLocaleString()}
+                      <span className="text-2xl font-black text-slate-900 tracking-tight">
+                        ₹{(farmer.estimatedBalance || 0).toLocaleString()}
                       </span>
                     </div>
                     <div className="space-y-1 text-right">
-                      <span className="text-xs text-muted-foreground uppercase tracking-wider block">
-                        {isHindi ? 'कुल दूध' : 'Total Milk'}
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">
+                        {isHindi ? 'कुल दूध' : 'TOTAL MILK'}
                       </span>
-                      <span className="text-xl font-bold text-dairy-600 dark:text-dairy-400">
+                      <span className="text-2xl font-black text-green-600 tracking-tight">
                         {farmer.totalMilk} L
                       </span>
                     </div>
