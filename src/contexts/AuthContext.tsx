@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           language: data.language || 'en',
           dairy: data.dairy ? {
             ...data.dairy[0],
-            plan: data.dairy[0].plan || PLAN_TIER.FREE // Default to FREE
+            plan: data.dairy[0].plan || PLAN_TIER.BASIC // Default to BASIC
           } : undefined,
         })
       }
@@ -258,7 +258,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           id: 'demo-dairy-1',
           name: 'Krishna Dairy Farm',
           status: 'active',
-          plan: PLAN_TIER.FREE
+          plan: PLAN_TIER.BASIC
         }
       }
 

@@ -39,9 +39,6 @@
       "@/components/*": [
         "./src/beauty/web/components/*"
       ],
-      "@/lib/supabase": [
-        "./src/shared/db.ts"
-      ],
       "@/lib/*": [
         "./src/lib/*"
       ],

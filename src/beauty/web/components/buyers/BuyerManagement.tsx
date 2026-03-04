@@ -111,8 +111,8 @@ export default function BuyerManagement() {
   const { i18n } = useTranslation();
   const isHindi = i18n.language === 'hi';
 
-  const canManageBuyers = profile?.role === 'DAIRY_OWNER' || profile?.role === 'INTERNAL_SUPER_ADMIN' || profile?.permissions?.includes('manage_buyers');
-  const canGenerateInvoices = profile?.role === 'DAIRY_OWNER' || profile?.role === 'INTERNAL_SUPER_ADMIN' || profile?.permissions?.includes('generate_bills');
+  const canManageBuyers = profile?.role === 'DAIRY_OWNER' || profile?.role === 'INTERNAL_SUPER_ADMIN' || (profile as any)?.permissions?.includes('manage_buyers');
+  const canGenerateInvoices = profile?.role === 'DAIRY_OWNER' || profile?.role === 'INTERNAL_SUPER_ADMIN' || (profile as any)?.permissions?.includes('generate_bills');
   const [buyers, setBuyers] = useState<Buyer[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);

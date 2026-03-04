@@ -43,7 +43,7 @@ export default function FarmerProductRequest() {
     useEffect(() => {
         if (profile?.dairy?.id) {
             fetchProducts();
-            if (profile?.role === 'farmer') {
+            if (profile?.role === 'FARMER' || (profile?.role as any) === 'farmer') {
                 fetchRequests(profile.id);
             } else {
                 fetchRequests();
@@ -72,7 +72,7 @@ export default function FarmerProductRequest() {
 
     if (loading) return <div className="p-8 text-center">{isHindi ? 'लोड हो रहा है...' : 'Loading...'}</div>;
 
-    if (!isPremiumPlus && profile?.role === 'FARMER') {
+    if (!isPremiumPlus && (profile?.role === 'FARMER' || (profile?.role as any) === 'farmer')) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center">
                 <div className="w-20 h-20 bg-saffron-100 rounded-full flex items-center justify-center mb-6">

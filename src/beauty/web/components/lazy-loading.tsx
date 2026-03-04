@@ -34,37 +34,37 @@ export const LazyNotificationSettings = lazy(() =>
 );
 
 export const LazyDashboard = lazy(() =>
-  import('../app/dashboard/page').then(module => ({
+  import('../../../app/dashboard/page').then(module => ({
     default: module.default
   }))
 );
 
 export const LazyMilkCollection = lazy(() =>
-  import('../app/dashboard/milk/page').then(module => ({
+  import('../../../app/dashboard/milk/page').then(module => ({
     default: module.default
   }))
 );
 
 export const LazyFarmers = lazy(() =>
-  import('../app/dashboard/farmers/page').then(module => ({
+  import('../../../app/dashboard/farmers/page').then(module => ({
     default: module.default
   }))
 );
 
 export const LazyBilling = lazy(() =>
-  import('../app/dashboard/billing/page').then(module => ({
+  import('../../../app/dashboard/billing/page').then(module => ({
     default: module.default
   }))
 );
 
 export const LazyInventory = lazy(() =>
-  import('../app/dashboard/products/page').then(module => ({
+  import('../../../app/dashboard/products/page').then(module => ({
     default: module.default
   }))
 );
 
 export const LazyDemo = lazy(() =>
-  import('../app/page').then(module => ({
+  import('../../../app/page').then(module => ({
     default: module.default
   }))
 );
