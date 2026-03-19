@@ -1,20 +1,31 @@
-// Redirect to new standalone reports page with real data
-'use client';
+import dynamic from 'next/dynamic'
+import { Suspense } from 'react'
+import { Loader2 } from 'lucide-react'
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+const ReportsAnalytics = dynamic(
+    () => import('@/components/reports/ReportsAnalytics'),
+    {
+        loading: () => (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <Loader2 className="w-8 h-8 animate-spin text-green-600" />
+            </div>
+        )
+    }
+)
 
-export default function DashboardReportsRedirect() {
-    const router = useRouter();
+export const metadata = {
+    title: 'Reports & Analytics | DigiDhoodh',
+    description: 'View reports, charts, and analytics',
+}
 
-    useEffect(() => {
-        router.replace('/reports');
-    }, [router]);
-
+export default function ReportsPage() {
     return (
-        <div className="flex items-center justify-center min-h-[400px]">
-            <Loader2 className="w-8 h-8 animate-spin text-green-600" />
-        </div>
-    );
+        <Suspense fallback={
+            <div className="flex items-center justify-center min-h-[400px]">
+                <Loader2 className="w-8 h-8 animate-spin text-green-600" />
+            </div>
+        }>
+            <ReportsAnalytics />
+        </Suspense>
+    )
 }

@@ -38,7 +38,11 @@ next-env.d.ts
 /release
 /tmp
 /.gemini
+/electron-bin
 *.exe
 *.dmg
 *.zip
+
+# Windows artifacts
+nul
 

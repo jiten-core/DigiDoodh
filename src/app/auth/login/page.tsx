@@ -21,7 +21,7 @@ export default function LoginPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const redirectUrl = searchParams?.get('redirect') || '/dashboard'
-    const { login, loginWithPhone, verifyOTP, loginAsDemo, loginAsFarmer, user, profile } = useAuth()
+    const { login, loginWithPhone, verifyOTP, loginAsDemo, loginAsFarmer, loginAsBuyer, user, profile } = useAuth()
     const { t, i18n } = useTranslation()
     const { theme, setTheme } = useTheme()
     const [mounted, setMounted] = useState(false)
@@ -345,14 +345,14 @@ export default function LoginPage() {
                         </div>
 
                         {/* Demo Login */}
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-3 gap-3">
                             <Button
                                 variant="outline"
                                 onClick={handleDemoLogin}
                                 className="h-14 rounded-xl border-2 font-medium hover:bg-saffron-50 hover:border-saffron-500 dark:hover:bg-saffron-900/20"
                             >
                                 <span className="mr-2">🏪</span>
-                                {isHindi ? 'डेयरी Demo' : 'Dairy Demo'}
+                                {isHindi ? 'डेयरी' : 'Dairy'}
                             </Button>
                             <Button
                                 variant="outline"
@@ -366,7 +366,21 @@ export default function LoginPage() {
                                 className="h-14 rounded-xl border-2 font-medium hover:bg-green-50 hover:border-green-500 dark:hover:bg-green-900/20"
                             >
                                 <span className="mr-2">👨‍🌾</span>
-                                {isHindi ? 'किसान Demo' : 'Farmer Demo'}
+                                {isHindi ? 'किसान' : 'Farmer'}
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={async () => {
+                                    setLoading(true);
+                                    const result = await loginAsBuyer();
+                                    if (result.success) router.push('/buyer');
+                                    else setError('Buyer login failed');
+                                    setLoading(false);
+                                }}
+                                className="h-14 rounded-xl border-2 font-medium hover:bg-blue-50 hover:border-blue-500 dark:hover:bg-blue-900/20"
+                            >
+                                <span className="mr-2">🛒</span>
+                                {isHindi ? 'खरीदार' : 'Buyer'}
                             </Button>
                         </div>
 

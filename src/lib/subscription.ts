@@ -1,5 +1,6 @@
 
 export enum PLAN_TIER {
+    FREE = 'free',
     BASIC = 'basic',
     PREMIUM = 'premium',
     PREMIUM_PLUS = 'premium_plus'
@@ -9,107 +10,56 @@ export type FeatureKey =
     | 'milk_collection'
     | 'pdf_bills'
     | 'whatsapp_bills'
-    | 'unlimited_whatsapp'
     | 'reports'
-    | 'advanced_reports'
     | 'staff_management'
+    | 'multiple_devices'
     | 'buyer_management'
-    | 'inventory'
-    | 'product_requests'
-    | 'hardware_unlock'
-    | 'multi_language';
+    | 'smart_analytics';
 
-export interface PlanDetails {
-    name: string;
-    monthlyPrice: number;
-    yearlyPriceBase: number;
-    features: FeatureKey[];
-    limits: {
-        farmers: number | 'unlimited';
-        staff: number | 'unlimited';
-        editHistoryDays: number;
-    };
-}
-
-export const PLANS: Record<PLAN_TIER, PlanDetails> = {
+export const PLANS = {
+    [PLAN_TIER.FREE]: {
+        name: 'Free Trial',
+        price: 0,
+        features: ['milk_collection'] as FeatureKey[],
+        limits: {
+            farmers: 10,
+            staff: 0
+        }
+    },
     [PLAN_TIER.BASIC]: {
         name: 'Basic',
-        monthlyPrice: 199,
-        yearlyPriceBase: 199 * 12,
-        features: ['milk_collection', 'pdf_bills', 'whatsapp_bills', 'multi_language'],
+        price: 199,
+        features: ['milk_collection', 'pdf_bills', 'whatsapp_bills'] as FeatureKey[],
         limits: {
-            farmers: 300,
-            staff: 1,
-            editHistoryDays: 30
+            farmers: 50,
+            staff: 0
         }
     },
     [PLAN_TIER.PREMIUM]: {
         name: 'Premium',
-        monthlyPrice: 299,
-        yearlyPriceBase: 299 * 12,
-        features: ['milk_collection', 'pdf_bills', 'unlimited_whatsapp', 'reports', 'buyer_management', 'multi_language'],
+        price: 299,
+        features: ['milk_collection', 'pdf_bills', 'whatsapp_bills', 'reports', 'buyer_management'] as FeatureKey[],
         limits: {
-            farmers: 600,
-            staff: 3,
-            editHistoryDays: 90
+            farmers: 200,
+            staff: 1
         }
     },
     [PLAN_TIER.PREMIUM_PLUS]: {
         name: 'Premium+',
-        monthlyPrice: 599,
-        yearlyPriceBase: 599 * 12,
-        features: [
-            'milk_collection',
-            'pdf_bills',
-            'unlimited_whatsapp',
-            'advanced_reports',
-            'buyer_management',
-            'staff_management',
-            'inventory',
-            'product_requests',
-            'hardware_unlock',
-            'multi_language'
-        ],
+        price: 599,
+        features: ['milk_collection', 'pdf_bills', 'whatsapp_bills', 'reports', 'buyer_management', 'staff_management', 'multiple_devices', 'smart_analytics'] as FeatureKey[],
         limits: {
-            farmers: 'unlimited',
-            staff: 'unlimited',
-            editHistoryDays: 365
+            farmers: 1000,
+            staff: 5
         }
     }
 };
 
-/**
- * Calculates a randomized yearly discount between 15% and 18%.
- * Seed is used to keep the discount consistent for a specific dairy/user.
- */
-export const getYearlyDiscountedPrice = (plan: PLAN_TIER, seed: string = 'default') => {
-    const base = PLANS[plan].yearlyPriceBase;
-    // Simple pseudo-random using seed
-    let hash = 0;
-    for (let i = 0; i < seed.length; i++) {
-        hash = seed.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const randomPercent = 15 + (Math.abs(hash) % 4); // 15, 16, 17, or 18
-    const discount = Math.floor(base * (randomPercent / 100));
-    return {
-        price: base - discount,
-        discountPercent: randomPercent,
-        savings: discount
-    };
-};
-
 export const hasAccess = (plan: PLAN_TIER, feature: FeatureKey): boolean => {
-    const planDetails = PLANS[plan];
-    if (!planDetails) return false;
-
-    // Feature aliases/grouping
-    if (feature === 'whatsapp_bills' && planDetails.features.includes('unlimited_whatsapp')) return true;
-    if (feature === 'reports' && planDetails.features.includes('advanced_reports')) return true;
-
+    const planDetails = PLANS[plan] || PLANS[PLAN_TIER.FREE];
     return planDetails.features.includes(feature);
 };
 
 export const getPlanLimits = (plan: PLAN_TIER) => {
-    return PLANS[plan]?.limits || PLANS[PLAN_TIER.BASIC].limits;
+    return (PLANS[plan] || PLANS[PLAN_TIER.FREE]).limits;
 };
-

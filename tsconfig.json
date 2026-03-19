@@ -27,29 +27,20 @@
       "@/*": [
         "./src/*"
       ],
-      "@/brain/*": [
-        "./src/brain/*"
-      ],
-      "@/beauty/*": [
-        "./src/beauty/*"
-      ],
-      "@/shared/*": [
-        "./src/shared/*"
-      ],
       "@/components/*": [
-        "./src/beauty/web/components/*"
+        "./src/components/*"
       ],
       "@/lib/*": [
         "./src/lib/*"
       ],
       "@/hooks/*": [
-        "./src/beauty/web/hooks/*"
+        "./src/hooks/*"
       ],
       "@/store/*": [
         "./src/store/*"
       ],
       "@/types/*": [
-        "./src/shared/*"
+        "./src/types/*"
       ],
       "@/utils/*": [
         "./src/utils/*"

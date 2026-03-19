@@ -1,82 +1,171 @@
 {
-    "name": "DigiDhoodh - Dairy Management",
+    "name": "DigiDhoodh",
     "short_name": "DigiDhoodh",
-    "description": "Complete offline-first dairy management system for milk collection, billing, and farmer ledger management",
-    "start_url": "/dashboard",
+    "description": "Complete Dairy Management System for India - Works Offline!",
+    "start_url": "/",
     "scope": "/",
     "display": "standalone",
     "orientation": "any",
-    "theme_color": "#FF9933",
-    "background_color": "#FFFFFF",
+    "background_color": "#16a34a",
+    "theme_color": "#16a34a",
     "categories": [
         "business",
         "productivity",
-        "finance"
+        "utilities"
     ],
     "lang": "en-IN",
     "dir": "ltr",
+    "prefer_related_applications": false,
     "icons": [
         {
-            "src": "/icon.png",
+            "src": "/icons/icon-72x72.png",
+            "sizes": "72x72",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-96x96.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-128x128.png",
+            "sizes": "128x128",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-144x144.png",
+            "sizes": "144x144",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-152x152.png",
+            "sizes": "152x152",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-384x384.png",
+            "sizes": "384x384",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-512x512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any maskable"
         }
     ],
-    "shortcuts": [
+    "screenshots": [
         {
-            "name": "Add Milk Entry",
-            "short_name": "Milk Entry",
-            "description": "Quickly add a new milk collection entry",
-            "url": "/milk-entry",
-            "icons": [
-                {
-                    "src": "/icon.png",
-                    "sizes": "512x512",
-                    "type": "image/png"
-                }
-            ]
+            "src": "/screenshots/dashboard.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Dashboard"
         },
         {
-            "name": "Dashboard",
-            "short_name": "Dashboard",
-            "description": "View today's milk collection summary",
-            "url": "/dashboard",
+            "src": "/screenshots/milk-collection.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Milk Collection"
+        },
+        {
+            "src": "/screenshots/mobile-dashboard.png",
+            "sizes": "390x844",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Mobile Dashboard"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "New Collection",
+            "short_name": "Collection",
+            "description": "Add new milk collection entry",
+            "url": "/dashboard/milk?action=new",
             "icons": [
                 {
-                    "src": "/icon.png",
-                    "sizes": "512x512",
-                    "type": "image/png"
+                    "src": "/icons/milk.png",
+                    "sizes": "96x96"
                 }
             ]
         },
         {
             "name": "Farmers",
             "short_name": "Farmers",
-            "description": "View and manage farmers",
-            "url": "/farmers",
+            "description": "View all farmers",
+            "url": "/dashboard/farmers",
             "icons": [
                 {
-                    "src": "/icon.png",
-                    "sizes": "512x512",
-                    "type": "image/png"
+                    "src": "/icons/farmers.png",
+                    "sizes": "96x96"
                 }
             ]
         },
         {
-            "name": "Bills",
-            "short_name": "Bills",
-            "description": "View and manage bills",
-            "url": "/bills",
+            "name": "Reports",
+            "short_name": "Reports",
+            "description": "View reports and analytics",
+            "url": "/dashboard/reports",
             "icons": [
                 {
-                    "src": "/icon.png",
-                    "sizes": "512x512",
-                    "type": "image/png"
+                    "src": "/icons/reports.png",
+                    "sizes": "96x96"
                 }
             ]
         }
     ],
     "related_applications": [],
-    "prefer_related_applications": false
+    "serviceworker": {
+        "src": "/sw.js",
+        "scope": "/",
+        "update_via_cache": "none"
+    },
+    "share_target": {
+        "action": "/share-target",
+        "method": "POST",
+        "enctype": "multipart/form-data",
+        "params": {
+            "title": "title",
+            "text": "text",
+            "url": "url"
+        }
+    },
+    "protocol_handlers": [
+        {
+            "protocol": "web+digidhoodh",
+            "url": "/%s"
+        }
+    ],
+    "file_handlers": [
+        {
+            "action": "/import",
+            "accept": {
+                "text/csv": [
+                    ".csv"
+                ],
+                "application/json": [
+                    ".json"
+                ]
+            }
+        }
+    ],
+    "launch_handler": {
+        "client_mode": [
+            "navigate-existing",
+            "auto"
+        ]
+    }
 }

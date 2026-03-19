@@ -36,6 +36,7 @@ interface AuthContextType {
   refreshProfile: () => Promise<void>
   loginAsDemo: () => Promise<{ success: boolean; error?: string }>
   loginAsFarmer: () => Promise<{ success: boolean; error?: string }>
+  loginAsBuyer: () => Promise<{ success: boolean; error?: string }>
   checkAccess: (feature: FeatureKey) => boolean
 }
 
@@ -108,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           language: data.language || 'en',
           dairy: data.dairy ? {
             ...data.dairy[0],
-            plan: data.dairy[0].plan || PLAN_TIER.BASIC // Default to BASIC
+            plan: data.dairy[0].plan || PLAN_TIER.FREE // Default to FREE
           } : undefined,
         })
       }
@@ -258,11 +259,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           id: 'demo-dairy-1',
           name: 'Krishna Dairy Farm',
           status: 'active',
-          plan: PLAN_TIER.BASIC
+          plan: PLAN_TIER.FREE
         }
       }
 
       setUser(demoFarmer)
+      setProfile(demoProfile)
+      localStorage.setItem('isDemoUser', 'true')
+      return { success: true }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  }
+
+  const loginAsBuyer = async () => {
+    try {
+      const demoBuyer = {
+        id: 'demo-buyer-001',
+        aud: 'authenticated',
+        role: 'authenticated',
+        email: 'buyer@digidoodh.com',
+        phone: '9988776655',
+        app_metadata: { provider: 'phone' },
+        user_metadata: {},
+        created_at: new Date().toISOString(),
+      } as User
+
+      const demoProfile: UserProfile = {
+        id: 'demo-buyer-001',
+        name: 'Shyam Mithaiwala',
+        email: 'buyer@digidoodh.com',
+        role: 'BUYER',
+        language: 'hi',
+        dairy: {
+          id: 'demo-dairy-1',
+          name: 'Krishna Dairy Farm',
+          status: 'active',
+          plan: PLAN_TIER.FREE
+        }
+      }
+
+      setUser(demoBuyer)
       setProfile(demoProfile)
       localStorage.setItem('isDemoUser', 'true')
       return { success: true }
@@ -315,6 +352,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         refreshProfile,
         loginAsDemo,
         loginAsFarmer,
+        loginAsBuyer,
         checkAccess
       }}
     >
