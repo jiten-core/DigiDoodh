@@ -50,6 +50,36 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     setMounted(true);
   }, []);
 
+  // Handle back button for mobile sidebar
+  useEffect(() => {
+    const handleBackButton = (e: PopStateEvent) => {
+      if (sidebarOpen) {
+        e.preventDefault();
+        setSidebarOpen(false);
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('popstate', handleBackButton);
+      return () => window.removeEventListener('popstate', handleBackButton);
+    }
+  }, [sidebarOpen, setSidebarOpen]);
+
+  // Push state when sidebar opens for back button to work
+  const handleOpenSidebar = () => {
+    if (!sidebarOpen) {
+      setSidebarOpen(true);
+      window.history.pushState({ sidebar: true }, '', window.location.href);
+    }
+  };
+
+  const handleCloseSidebar = () => {
+    if (sidebarOpen) {
+      setSidebarOpen(false);
+      window.history.back();
+    }
+  };
+
   const navigation = [
     {
       name: t('nav.dashboard', 'Dashboard'),
@@ -278,7 +308,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="flex items-center justify-between px-4 lg:px-6 py-3">
             {/* Mobile menu button */}
             <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
+              onClick={handleOpenSidebar}
               className="lg:hidden p-2 rounded-xl hover:bg-muted tap-target"
             >
               <Menu className="w-6 h-6" />
@@ -347,7 +377,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="lg:hidden fixed inset-0 bg-black/50 z-40"
-              onClick={() => setSidebarOpen(false)}
+              onClick={handleCloseSidebar}
             />
             <motion.aside
               initial={{ x: -280 }}
@@ -367,7 +397,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   </span>
                 </div>
                 <button
-                  onClick={() => setSidebarOpen(false)}
+                  onClick={handleCloseSidebar}
                   className="p-2 rounded-xl hover:bg-muted"
                 >
                   <X className="w-5 h-5" />
@@ -386,7 +416,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     <Link
                       key={item.href}
                       href={item.href}
-                      onClick={() => setSidebarOpen(false)}
+                      onClick={handleCloseSidebar}
                       className={cn(
                         "flex items-center gap-3 px-3 py-3 rounded-xl transition-all tap-target",
                         isActive
