@@ -214,31 +214,31 @@ export default function ReferralsPage() {
                                 <span className="font-semibold">Your Referral Code</span>
                             </div>
 
-                            <div className="flex items-center gap-4 mb-6">
-                                <div className="flex-1 bg-white/20 backdrop-blur-sm rounded-2xl px-6 py-4">
-                                    <span className="text-3xl font-bold tracking-wider">{data.referralCode}</span>
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="flex-1 bg-white/20 backdrop-blur-sm rounded-2xl px-5 py-4">
+                                    <span className="text-2xl sm:text-3xl font-bold tracking-wider">{data.referralCode}</span>
                                 </div>
                                 <Button
                                     onClick={handleCopyCode}
-                                    className="h-14 px-6 bg-white text-purple-600 hover:bg-gray-100 rounded-2xl font-semibold"
+                                    className="h-14 px-5 bg-white text-purple-600 hover:bg-gray-100 rounded-2xl font-semibold flex items-center"
                                 >
                                     {copied ? <CheckCircle className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-                                    <span className="ml-2">{copied ? 'Copied!' : 'Copy'}</span>
+                                    <span className="ml-2 hidden sm:inline">{copied ? 'Copied!' : 'Copy'}</span>
                                 </Button>
                             </div>
 
-                            <div className="flex gap-3">
+                            <div className="flex gap-3 w-full">
                                 <Button
                                     onClick={handleShare}
                                     variant="outline"
-                                    className="flex-1 bg-white/20 border-white/30 text-white hover:bg-white/30 rounded-xl py-6"
+                                    className="flex-1 bg-white/20 border-white/30 text-white hover:bg-white/30 rounded-xl py-4"
                                 >
                                     <Share2 className="w-5 h-5 mr-2" />
                                     Share
                                 </Button>
                                 <Button
                                     onClick={handleShareWhatsApp}
-                                    className="flex-1 bg-green-500 hover:bg-green-600 text-white rounded-xl py-6"
+                                    className="flex-1 bg-green-500 hover:bg-green-600 text-white rounded-xl py-4"
                                 >
                                     <MessageCircle className="w-5 h-5 mr-2" />
                                     WhatsApp
@@ -249,18 +249,18 @@ export default function ReferralsPage() {
                 </Card>
             </motion.div>
 
-            {/* Stats Grid */}
+            {/* Stats Grid - consistent color system */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
                 >
-                    <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
+                    <Card className="card-premium">
                         <CardContent className="p-4 text-center">
-                            <Users className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                            <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{data.totalReferrals}</p>
-                            <p className="text-xs text-blue-600 dark:text-blue-400">Total Referrals</p>
+                            <Users className="w-8 h-8 text-dairy-600 mx-auto mb-2" />
+                            <p className="text-2xl font-bold text-foreground">{data.totalReferrals}</p>
+                            <p className="text-xs text-muted-foreground">Total Referrals</p>
                         </CardContent>
                     </Card>
                 </motion.div>
@@ -270,11 +270,11 @@ export default function ReferralsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
                 >
-                    <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800">
+                    <Card className="card-premium">
                         <CardContent className="p-4 text-center">
-                            <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                            <p className="text-2xl font-bold text-green-900 dark:text-green-100">{data.completedReferrals}</p>
-                            <p className="text-xs text-green-600 dark:text-green-400">Completed</p>
+                            <CheckCircle className="w-8 h-8 text-dairy-600 mx-auto mb-2" />
+                            <p className="text-2xl font-bold text-foreground">{data.completedReferrals}</p>
+                            <p className="text-xs text-muted-foreground">Active</p>
                         </CardContent>
                     </Card>
                 </motion.div>
@@ -284,11 +284,11 @@ export default function ReferralsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                 >
-                    <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border-yellow-200 dark:border-yellow-800">
+                    <Card className="card-premium">
                         <CardContent className="p-4 text-center">
-                            <Clock className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
-                            <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">{data.pendingReferrals}</p>
-                            <p className="text-xs text-yellow-600 dark:text-yellow-400">Pending</p>
+                            <Clock className="w-8 h-8 text-saffron-600 mx-auto mb-2" />
+                            <p className="text-2xl font-bold text-foreground">{data.pendingReferrals}</p>
+                            <p className="text-xs text-muted-foreground">Pending</p>
                         </CardContent>
                     </Card>
                 </motion.div>

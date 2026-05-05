@@ -264,16 +264,16 @@ export default function DashboardPage() {
                     transition={{ delay: 0.2 }}
                 >
                     <Card className="card-premium">
-                        <CardContent className="p-5">
+                        <CardContent className="p-4 sm:p-5">
                             <div className="flex justify-between items-start mb-3">
-                                <div className="w-11 h-11 bg-saffron-100 dark:bg-saffron-900/30 rounded-xl flex items-center justify-center">
+                                <div className="w-10 h-10 sm:w-11 sm:h-11 bg-saffron-100 dark:bg-saffron-900/30 rounded-xl flex items-center justify-center">
                                     <Users className="w-5 h-5 text-saffron-600 dark:text-saffron-400" />
                                 </div>
                             </div>
                             <p className="text-sm text-muted-foreground mb-1">
                                 {isHindi ? 'कुल किसान' : 'Total Farmers'}
                             </p>
-                            <p className="text-2xl font-bold text-foreground">
+                            <p className="text-xl sm:text-2xl font-bold text-foreground">
                                 {stats?.totalFarmers.count}
                             </p>
                             <p className="text-sm text-saffron-600 dark:text-saffron-400 font-medium mt-1">
@@ -290,16 +290,16 @@ export default function DashboardPage() {
                     transition={{ delay: 0.3 }}
                 >
                     <Card className="card-premium">
-                        <CardContent className="p-5">
+                        <CardContent className="p-4 sm:p-5">
                             <div className="flex justify-between items-start mb-3">
-                                <div className="w-11 h-11 bg-earth-100 dark:bg-earth-900/30 rounded-xl flex items-center justify-center">
+                                <div className="w-10 h-10 sm:w-11 sm:h-11 bg-earth-100 dark:bg-earth-900/30 rounded-xl flex items-center justify-center">
                                     <ShoppingBag className="w-5 h-5 text-earth-600 dark:text-earth-400" />
                                 </div>
                             </div>
                             <p className="text-sm text-muted-foreground mb-1">
                                 {isHindi ? 'कुल खरीदार' : 'Total Buyers'}
                             </p>
-                            <p className="text-2xl font-bold text-foreground">
+                            <p className="text-xl sm:text-2xl font-bold text-foreground">
                                 {stats?.totalBuyers.count}
                             </p>
                             <p className="text-sm text-earth-600 dark:text-earth-400 font-medium mt-1">
@@ -316,17 +316,17 @@ export default function DashboardPage() {
                     transition={{ delay: 0.4 }}
                 >
                     <Card className="card-premium">
-                        <CardContent className="p-5">
+                        <CardContent className="p-4 sm:p-5">
                             <div className="flex justify-between items-start mb-3">
-                                <div className="w-11 h-11 bg-terra-100 dark:bg-terra-900/30 rounded-xl flex items-center justify-center">
+                                <div className="w-10 h-10 sm:w-11 sm:h-11 bg-terra-100 dark:bg-terra-900/30 rounded-xl flex items-center justify-center">
                                     <IndianRupee className="w-5 h-5 text-terra-600 dark:text-terra-400" />
                                 </div>
                             </div>
                             <p className="text-sm text-muted-foreground mb-1">
                                 {isHindi ? 'बकाया भुगतान' : 'Pending Payments'}
                             </p>
-                            <p className="text-2xl font-bold text-foreground">
-                                ₹{((stats?.pendingPayments.amount || 0) / 1000).toFixed(0)}K
+                            <p className="text-xl sm:text-2xl font-bold text-foreground">
+                                ₹{stats?.pendingPayments.amount.toLocaleString('en-IN')}
                             </p>
                             <p className="text-sm text-terra-600 dark:text-terra-400 font-medium mt-1">
                                 {stats?.pendingPayments.count} {isHindi ? 'बिल' : 'bills'}
