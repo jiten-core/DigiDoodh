@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useTranslation } from 'react-i18next'
 import {
     Milk,
@@ -105,13 +106,62 @@ export default function DashboardPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh]">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-dairy-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-muted-foreground">
-                        {isHindi ? 'लोड हो रहा है...' : 'Loading...'}
-                    </p>
+            <div className="space-y-6 animate-pulse">
+                {/* Welcome Banner Skeleton */}
+                <div className="bg-gradient-to-r from-dairy-500 to-dairy-600 rounded-3xl p-6 md:p-8 h-[220px]">
+                    <Skeleton className="h-10 w-64 bg-white/20 mb-4" />
+                    <Skeleton className="h-5 w-48 bg-white/20" />
                 </div>
+                
+                {/* Stats Grid Skeletons */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    {[...Array(4)].map((_, i) => (
+                        <Card key={i} className="card-premium">
+                            <CardContent className="p-5 space-y-3">
+                                <div className="flex justify-between">
+                                    <Skeleton className="w-11 h-11 rounded-xl" />
+                                    <Skeleton className="w-14 h-6 rounded-full" />
+                                </div>
+                                <Skeleton className="h-4 w-24" />
+                                <Skeleton className="h-8 w-32" />
+                                <Skeleton className="h-4 w-20" />
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+
+                {/* Quick Actions Skeleton */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[...Array(4)].map((_, i) => (
+                        <Card key={i} className="card-premium">
+                            <CardContent className="p-5 flex items-center gap-4">
+                                <Skeleton className="w-12 h-12 rounded-xl" />
+                                <div className="space-y-2 flex-1">
+                                    <Skeleton className="h-4 w-20" />
+                                    <Skeleton className="h-3 w-16" />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+
+                {/* Recent Activity Skeleton */}
+                <Card className="card-premium">
+                    <CardHeader>
+                        <Skeleton className="h-6 w-40" />
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {[...Array(5)].map((_, i) => (
+                            <div key={i} className="flex items-center gap-4">
+                                <Skeleton className="w-10 h-10 rounded-full" />
+                                <div className="flex-1 space-y-2">
+                                    <Skeleton className="h-4 w-48" />
+                                    <Skeleton className="h-3 w-32" />
+                                </div>
+                            </div>
+                        ))}
+                    </CardContent>
+                </Card>
             </div>
         )
     }
