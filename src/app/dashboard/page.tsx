@@ -228,18 +228,18 @@ export default function DashboardPage() {
                     transition={{ delay: 0.1 }}
                 >
                     <Card className="card-premium">
-                        <CardContent className="p-5">
+                        <CardContent className="p-4 sm:p-5">
                             <div className="flex justify-between items-start mb-3">
-                                <div className="w-11 h-11 bg-dairy-100 dark:bg-dairy-900/30 rounded-xl flex items-center justify-center">
+                                <div className="w-10 h-10 sm:w-11 sm:h-11 bg-dairy-100 dark:bg-dairy-900/30 rounded-xl flex items-center justify-center">
                                     <Milk className="w-5 h-5 text-dairy-600 dark:text-dairy-400" />
                                 </div>
                                 <Badge className={`${(stats?.todayCollection.change || 0) >= 0
                                     ? 'bg-dairy-100 text-dairy-700 dark:bg-dairy-900/30 dark:text-dairy-400'
                                     : 'bg-terra-100 text-terra-700 dark:bg-terra-900/30 dark:text-terra-400'
-                                    } border-0`}>
+                                    } border-0 text-xs`}>
                                     {(stats?.todayCollection.change || 0) >= 0
-                                        ? <TrendingUp className="w-3 h-3 mr-1" />
-                                        : <TrendingDown className="w-3 h-3 mr-1" />
+                                        ? <TrendingUp className="w-3 h-3 mr-0.5" />
+                                        : <TrendingDown className="w-3 h-3 mr-0.5" />
                                     }
                                     {Math.abs(stats?.todayCollection.change || 0)}%
                                 </Badge>
@@ -247,11 +247,11 @@ export default function DashboardPage() {
                             <p className="text-sm text-muted-foreground mb-1">
                                 {isHindi ? 'आज का संग्रहण' : "Today's Collection"}
                             </p>
-                            <p className="text-2xl font-bold text-foreground">
+                            <p className="text-xl sm:text-2xl font-bold text-foreground">
                                 {stats?.todayCollection.liters.toLocaleString()} L
                             </p>
                             <p className="text-sm text-dairy-600 dark:text-dairy-400 font-medium mt-1">
-                                ₹{stats?.todayCollection.amount.toLocaleString()}
+                                ₹{(stats?.todayCollection.amount || 0).toLocaleString('en-IN')}
                             </p>
                         </CardContent>
                     </Card>

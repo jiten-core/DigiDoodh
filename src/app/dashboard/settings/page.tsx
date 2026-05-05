@@ -38,8 +38,16 @@ export default function SettingsPage() {
 
     // App settings
     const [language, setLanguage] = useState(i18n.language)
+    const [isDirty, setIsDirty] = useState(false)
+
+    // Track changes
+    const handleChange = (setter: (value: string) => void) => (value: string) => {
+        setter(value)
+        setIsDirty(true)
+    }
 
     const handleSave = async () => {
+        if (!isDirty) return
         setSaving(true)
         try {
             // Simulate save
@@ -67,7 +75,7 @@ export default function SettingsPage() {
                         {isHindi ? 'अपना खाता और डेयरी manage करें' : 'Manage your account and preferences'}
                     </p>
                 </div>
-                <Button onClick={handleSave} disabled={saving} className="btn-dairy h-12 px-6">
+                <Button onClick={handleSave} disabled={saving || !isDirty} className="btn-dairy h-12 px-6 disabled:opacity-50 disabled:cursor-not-allowed">
                     {saving ? (
                         <>{isHindi ? 'सेव हो रहा है...' : 'Saving...'}</>
                     ) : (
@@ -80,7 +88,7 @@ export default function SettingsPage() {
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                <TabsList className="bg-transparent p-0 h-auto flex flex-wrap gap-2 justify-start">
+                <TabsList className="bg-transparent p-0 h-auto grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
                     {[
                         { id: 'profile', icon: User, label: isHindi ? 'प्रोफाइल' : 'Profile' },
                         { id: 'dairy', icon: Building2, label: isHindi ? 'डेयरी' : 'Dairy' },
@@ -90,7 +98,7 @@ export default function SettingsPage() {
                         <TabsTrigger
                             key={tab.id}
                             value={tab.id}
-                            className={`flex items-center gap-2 px-6 py-3 rounded-xl border transition-all data-[state=active]:bg-dairy-500 data-[state=active]:text-white data-[state=active]:border-dairy-600 border-border bg-card hover:bg-muted font-medium`}
+                            className={`flex-1 sm:flex-none items-center gap-2 px-4 py-3 rounded-xl border transition-all data-[state=active]:bg-dairy-500 data-[state=active]:text-white data-[state=active]:border-dairy-600 border-border bg-card hover:bg-muted font-medium text-sm`}
                         >
                             <tab.icon className="w-4 h-4" />
                             {tab.label}
