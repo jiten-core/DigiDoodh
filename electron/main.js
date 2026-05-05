@@ -1,14 +1,10 @@
 const { app, BrowserWindow, shell } = require('electron');
 const path = require('path');
-
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-// eslint-disable-next-line global-require
-if (require('electron-squirrel-startup')) {
-    if (app) app.quit();
-    process.exit(0);
-}
+const fs = require('fs');
+const http = require('http');
 
 let mainWindow;
+let server;
 
 const createWindow = () => {
     // Create the browser window.
@@ -18,7 +14,7 @@ const createWindow = () => {
         minWidth: 1024,
         minHeight: 768,
         title: 'DigiDoodh Desktop',
-        icon: path.join(__dirname, '../public/icons/icon-512x512.png'),
+        icon: path.join(__dirname, '../public/icon.png'),
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
@@ -36,10 +32,15 @@ const createWindow = () => {
     mainWindow.setMenuBarVisibility(false);
 
     // Load the app
-    // In production, we'll want to load the built files or serve them
-    // For now, in dev, we use localhost. In prod, we'll need to adjust.
-    const startUrl = process.env.ELECTRON_START_URL || 'http://localhost:3000';
-    mainWindow.loadURL(startUrl);
+    const isDev = process.env.NODE_ENV === 'development';
+    
+    if (isDev) {
+        mainWindow.loadURL('http://localhost:3000');
+    } else {
+        // Serve static files from out folder
+        const outPath = path.join(__dirname, '../out');
+        mainWindow.loadFile(path.join(outPath, 'index.html'));
+    }
 
     // Open external links in default browser
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {

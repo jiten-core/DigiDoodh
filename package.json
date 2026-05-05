@@ -3,7 +3,7 @@
     "version": "2.0.0",
     "description": "DigiDhoodh - Complete Dairy Management SaaS for India",
     "private": true,
-    "main": "electron-app/main.js",
+    "main": "electron/main.js",
     "scripts": {
         "dev": "next dev",
         "build": "next build",
@@ -120,11 +120,13 @@
             "output": "build_output"
         },
         "files": [
-            "electron-app/**/*",
+            "electron/**/*",
             "out/**/*",
-            "public/**/*",
             "package.json"
         ],
+        "extraMetadata": {
+            "main": "electron/main.js"
+        },
         "win": {
             "target": "nsis",
             "icon": "public/icon.png"
