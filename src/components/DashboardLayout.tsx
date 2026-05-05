@@ -138,8 +138,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         animate={{ width: sidebarOpen ? 280 : 80 }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
         className={cn(
-          "hidden lg:flex flex-col glass-panel",
-          "fixed inset-y-0 left-0 z-40"
+          "hidden lg:flex flex-col glass-panel fixed left-0 top-0 bottom-0 z-40 overflow-hidden"
         )}
       >
         {/* Sidebar Header */}
@@ -271,10 +270,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Main Content */}
       <div className={cn(
-        "flex-1 flex flex-col min-h-screen",
-        "lg:ml-[280px]",
-        !sidebarOpen && "lg:ml-[80px]"
-      )} style={{ marginLeft: sidebarOpen ? '280px' : '80px' }}>
+        "flex-1 flex flex-col min-h-screen pb-20 lg:pb-0",
+        "lg:ml-0"
+      )}>
         {/* Top Bar */}
         <header className="sticky top-0 z-30 glass-panel border-b border-border/50">
           <div className="flex items-center justify-between px-4 lg:px-6 py-3">
