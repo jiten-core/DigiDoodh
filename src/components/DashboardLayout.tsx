@@ -275,7 +275,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Mobile bottom navigation */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bottom-nav">
-        <div className="flex justify-around items-center py-2">
+        <div className="flex justify-around items-center h-16">
           {[
             { icon: Home, href: '/dashboard', label: isHindi ? 'होम' : 'Home' },
             { icon: Milk, href: '/dashboard/milk', label: isHindi ? 'दूध' : 'Milk' },
@@ -288,10 +288,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={cn("bottom-nav-item", isActive && "active")}
+                className={cn(
+                  "bottom-nav-item flex flex-col items-center justify-center gap-1",
+                  isActive && "active"
+                )}
               >
                 <item.icon className="w-5 h-5" />
-                <span className="text-xs mt-1">{item.label}</span>
+                <span className="text-[11px] font-medium">{item.label}</span>
               </Link>
             );
           })}
@@ -309,9 +312,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             {/* Mobile menu button */}
             <button
               onClick={handleOpenSidebar}
-              className="lg:hidden p-2 rounded-xl hover:bg-muted tap-target"
+              className="lg:hidden p-2.5 rounded-xl hover:bg-muted tap-target flex items-center justify-center"
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5" />
             </button>
 
             {/* Page title - hidden on mobile */}
@@ -321,14 +324,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </h1>
             </div>
 
-            {/* Right actions */}
-            <div className="flex items-center gap-2">
+            {/* Right actions - consistent spacing */}
+            <div className="flex items-center gap-2 sm:gap-3">
               {/* Theme toggle */}
               {mounted && (
                 <button
                   onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                  className="p-2.5 rounded-xl hover:bg-muted transition-colors tap-target"
-                  aria-label="Toggle theme"
+                  className="p-2.5 rounded-xl bg-muted/50 hover:bg-muted transition-colors tap-target flex items-center justify-center"
+                  aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
                 >
                   {theme === 'dark' ? (
                     <Sun className="w-5 h-5 text-saffron-500" />
@@ -338,18 +341,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </button>
               )}
 
-              {/* Notifications */}
-              <button className="relative p-2.5 rounded-xl hover:bg-muted transition-colors tap-target">
+              {/* Notifications - with background */}
+              <button className="relative p-2.5 rounded-xl bg-muted/50 hover:bg-muted transition-colors tap-target flex items-center justify-center">
                 <Bell className="w-5 h-5 text-muted-foreground" />
                 {unreadNotifications > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-terra-500 text-white text-xs rounded-full flex items-center justify-center">
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-terra-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                     {unreadNotifications}
                   </span>
                 )}
               </button>
 
               {/* Language */}
-              <div className="hidden sm:block">
+              <div className="hidden sm:flex">
                 <LanguageSwitcherCompact />
               </div>
 
@@ -376,15 +379,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="lg:hidden fixed inset-0 bg-black/50 z-40"
+              className="lg:hidden fixed inset-0 bg-black/60 z-40"
               onClick={handleCloseSidebar}
             />
             <motion.aside
-              initial={{ x: -280 }}
+              initial={{ x: -300 }}
               animate={{ x: 0 }}
-              exit={{ x: -280 }}
+              exit={{ x: -300 }}
               transition={{ type: 'spring', damping: 25 }}
-              className="lg:hidden fixed inset-y-0 left-0 w-72 bg-card z-50 flex flex-col"
+              className="lg:hidden fixed inset-y-0 left-0 w-80 max-w-[85%] bg-card z-50 flex flex-col shadow-xl"
             >
               {/* Mobile sidebar content */}
               <div className="flex items-center justify-between p-4 border-b border-border">
@@ -398,7 +401,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </div>
                 <button
                   onClick={handleCloseSidebar}
-                  className="p-2 rounded-xl hover:bg-muted"
+                  className="p-2.5 rounded-xl hover:bg-muted flex items-center justify-center"
                 >
                   <X className="w-5 h-5" />
                 </button>

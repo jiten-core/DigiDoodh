@@ -400,26 +400,28 @@
 
 .bottom-nav {
   @apply fixed bottom-0 left-0 right-0 z-50;
-  background: hsl(var(--card) / 0.95);
-  backdrop-filter: blur(12px);
+  background: hsl(var(--card) / 0.98);
+  backdrop-filter: blur(16px);
   border-top: 1px solid hsl(var(--border));
   padding-bottom: env(safe-area-inset-bottom);
   padding-top: 8px;
-  padding-bottom: 8px;
 }
 
 .bottom-nav-item {
-  @apply flex flex-col items-center justify-center py-2 px-3 text-muted-foreground transition-colors;
-  min-height: 64px;
-  min-width: 60px;
+  @apply flex flex-col items-center justify-center text-muted-foreground transition-all;
+  min-height: 56px;
+  min-width: 56px;
+  padding: 6px 8px;
+  border-radius: 12px;
 }
 
 .bottom-nav-item.active {
   color: hsl(142, 76%, 36%);
+  background: hsl(142, 60%, 96%);
 }
 
-.bottom-nav-item:hover {
-  color: hsl(142, 76%, 36%);
+.dark .bottom-nav-item.active {
+  background: hsl(142, 40%, 20%);
 }
 
 /* ===============================================
